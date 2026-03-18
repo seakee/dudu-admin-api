@@ -2,9 +2,9 @@ package system
 
 import (
 	"context"
-	"github.com/seakee/go-api/app/model/system"
-	"github.com/seakee/go-api/app/pkg/e"
-	repo "github.com/seakee/go-api/app/repository/system"
+	"github.com/seakee/dudu-admin-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	repo "github.com/seakee/dudu-admin-api/app/repository/system"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/redis"
 	"gorm.io/gorm"

@@ -134,7 +134,7 @@ package auth
 
 import (
     "context"
-    "github.com/seakee/go-api/app/model/auth"
+    "github.com/seakee/dudu-admin-api/app/model/auth"
     "github.com/sk-pkg/redis"
     "gorm.io/gorm"
 )

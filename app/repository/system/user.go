@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/seakee/go-api/app/model/system"
-	"github.com/seakee/go-api/app/model/system/role"
-	pwd "github.com/seakee/go-api/app/pkg/password"
+	"github.com/seakee/dudu-admin-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/model/system/role"
+	pwd "github.com/seakee/dudu-admin-api/app/pkg/password"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/redis"
 	"go.uber.org/zap"

@@ -5,13 +5,13 @@
 package main
 
 import (
-	"github.com/seakee/go-api/app/config"
+	"github.com/seakee/dudu-admin-api/app/config"
 	"log"
 	"os"
 	"os/signal"
 	"runtime"
 
-	"github.com/seakee/go-api/bootstrap"
+	"github.com/seakee/dudu-admin-api/bootstrap"
 )
 
 func main() {

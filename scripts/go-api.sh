@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Default values for environment variables
-APP_NAME=${APP_NAME:-go-api}
+APP_NAME=${APP_NAME:-dudu-admin-api}
 IMAGE_NAME=${IMAGE_NAME:-$APP_NAME:latest}
 CONFIG_DIR=${CONFIG_DIR:-$(pwd)/bin/configs}
 TZ=${TZ:-Asia/Shanghai}

@@ -2,9 +2,9 @@ package admin
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/http"
-	"github.com/seakee/go-api/app/http/router/internal/admin/auth"
-	"github.com/seakee/go-api/app/http/router/internal/admin/system"
+	"github.com/seakee/dudu-admin-api/app/http"
+	"github.com/seakee/dudu-admin-api/app/http/router/internal/admin/auth"
+	"github.com/seakee/dudu-admin-api/app/http/router/internal/admin/system"
 )
 
 func RegisterRoutes(api *gin.RouterGroup, ctx *http.Context) {

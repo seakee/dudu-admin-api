@@ -2,11 +2,11 @@ package record
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/http"
-	"github.com/seakee/go-api/app/http/controller"
-	systemModel "github.com/seakee/go-api/app/model/system"
-	"github.com/seakee/go-api/app/pkg/e"
-	"github.com/seakee/go-api/app/service/system"
+	"github.com/seakee/dudu-admin-api/app/http"
+	"github.com/seakee/dudu-admin-api/app/http/controller"
+	systemModel "github.com/seakee/dudu-admin-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	"github.com/seakee/dudu-admin-api/app/service/system"
 )
 
 // Handler defines the interface for operation record-related HTTP handlers.
@@ -111,13 +111,13 @@ func NewHandler(appCtx *http.Context) Handler {
 		BaseController: controller.BaseController{
 			AppCtx: appCtx,
 			Logger: appCtx.Logger,
-			Redis:  appCtx.Redis["go-api"],
+			Redis:  appCtx.Redis["dudu-admin-api"],
 			I18n:   appCtx.I18n,
 		},
 		service: system.NewOperationRecordService(
-			appCtx.Redis["go-api"],
+			appCtx.Redis["dudu-admin-api"],
 			appCtx.Logger,
-			appCtx.SqlDB["go-api"],
+			appCtx.SqlDB["dudu-admin-api"],
 		),
 	}
 }

@@ -7,8 +7,8 @@
 package job
 
 import (
-	"github.com/seakee/go-api/app/job/monitor"
-	"github.com/seakee/go-api/app/pkg/schedule"
+	"github.com/seakee/dudu-admin-api/app/job/monitor"
+	"github.com/seakee/dudu-admin-api/app/pkg/schedule"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/notify"
 	"github.com/sk-pkg/redis"
@@ -28,7 +28,7 @@ import (
 // Currently, it sets up an IP monitor job that runs every 5 minutes without overlapping.
 func Register(logger *logger.Manager, redis map[string]*redis.Manager, db map[string]*gorm.DB, notify *notify.Manager, s *schedule.Schedule) {
 	// Initialize the IP monitor
-	ipMonitor := monitor.NewIpMonitor(logger, redis["go-api"])
+	ipMonitor := monitor.NewIpMonitor(logger, redis["dudu-admin-api"])
 
 	// Add the IP monitor job to the scheduler
 	// It will run every 5 minutes without overlapping with previous executions

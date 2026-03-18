@@ -9,10 +9,10 @@ import (
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 
-	"github.com/seakee/go-api/app/model/system"
-	roleModel "github.com/seakee/go-api/app/model/system/role"
-	"github.com/seakee/go-api/app/pkg/e"
-	repo "github.com/seakee/go-api/app/repository/system"
+	"github.com/seakee/dudu-admin-api/app/model/system"
+	roleModel "github.com/seakee/dudu-admin-api/app/model/system/role"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	repo "github.com/seakee/dudu-admin-api/app/repository/system"
 )
 
 // TestUserService_Detail tests fetching user details.

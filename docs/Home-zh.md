@@ -74,7 +74,7 @@ graph TD
 
 ### 🔗 外部资源
 
-- **[GitHub仓库](https://github.com/seakee/go-api)** - 源代码和问题跟踪
+- **[GitHub仓库](https://github.com/seakee/dudu-admin-api)** - 源代码和问题跟踪
 - **[Go官方文档](https://golang.org/doc/)** - Go语言官方文档
 - **[Gin框架](https://gin-gonic.com/)** - Web框架文档
 - **[GORM](https://gorm.io/)** - ORM库文档
@@ -90,8 +90,8 @@ graph TD
 
 ### 📞 支持与社区
 
-- **问题**: [GitHub Issues](https://github.com/seakee/go-api/issues)
-- **讨论**: [GitHub Discussions](https://github.com/seakee/go-api/discussions)
+- **问题**: [GitHub Issues](https://github.com/seakee/dudu-admin-api/issues)
+- **讨论**: [GitHub Discussions](https://github.com/seakee/dudu-admin-api/discussions)
 - **邮箱**: seakee23@gmail.com
 
 ### 📄 许可证

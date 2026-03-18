@@ -3,7 +3,7 @@ package system
 import (
 	"testing"
 
-	systemModel "github.com/seakee/go-api/app/model/system"
+	systemModel "github.com/seakee/dudu-admin-api/app/model/system"
 	"gorm.io/gorm"
 )
 

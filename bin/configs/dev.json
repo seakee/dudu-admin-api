@@ -1,6 +1,6 @@
 {
   "system": {
-    "name": "go-api",
+    "name": "dudu-admin-api",
     "run_mode": "debug",
     "http_port": ":8080",
     "read_timeout": 60,
@@ -54,7 +54,7 @@
     {
       "enable": true,
       "db_type": "mysql",
-      "db_name": "db_name",
+      "db_name": "dudu-admin-api",
       "db_host": "db_host",
       "db_port": 3306,
       "db_username": "db_username",
@@ -67,9 +67,9 @@
     {
       "enable": false,
       "db_type": "mongo",
-      "db_name": "db_name",
+      "db_name": "dudu-admin-api",
       "db_host": "mongodb://db_host:27017",
-      "db_username": "go-api",
+      "db_username": "dudu-admin-api",
       "db_password": "db_username",
       "db_max_idle_conn": 10,
       "db_max_open_conn": 50,
@@ -80,18 +80,18 @@
   ],
   "cache": {
     "driver": "redis",
-    "prefix": "go-api"
+    "prefix": "dudu-admin-api"
   },
   "redis": [
     {
       "enable": true,
-      "name": "go-api",
+      "name": "dudu-admin-api",
       "host": "host:6379",
       "auth": "",
       "max_idle": 30,
       "max_active": 100,
       "idle_timeout": 30,
-      "prefix": "go-api",
+      "prefix": "dudu-admin-api",
       "db": 0
     }
   ],
@@ -102,7 +102,7 @@
       "addr3"
     ],
     "max_retry": 1,
-    "client_id": "go-api",
+    "client_id": "dudu-admin-api",
     "producer_enable": false,
     "consumer_enable": false,
     "consumer_group": "consumerGroup",
@@ -131,7 +131,7 @@
     "default_level": "info",
     "lark": {
       "enable": false,
-      "default_send_channel_name": "go-api",
+      "default_send_channel_name": "dudu-admin-api",
       "channel_size": 0,
       "pool_size": 0,
       "bot_webhooks": {
@@ -139,7 +139,7 @@
         "bot_2": "https://open.feishu.cn/open-apis/bot/v2/hook/xxx"
       },
       "larks": {
-        "lark-app": {
+        "dudu-admin-api": {
           "app_type": "lark",
           "app_id": "cli_xxx",
           "app_secret": "xxx"

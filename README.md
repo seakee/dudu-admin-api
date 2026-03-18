@@ -1,4 +1,4 @@
-# Go-API Framework
+# Dudu Admin API
 
 **Languages**: [English](README.md) | [中文](README-zh.md)
 
@@ -6,7 +6,14 @@
 
 ### Overview
 
-`go-api` is a powerful, high-performance Go framework designed for building enterprise-grade web APIs. It provides a complete solution with layered architecture, dependency injection, comprehensive middleware support, and automatic code generation capabilities.
+`dudu-admin-api` is the standalone admin backend extracted from the `admin` branch of [`seakee/go-api`](https://github.com/seakee/go-api). It preserves the original Git history and focuses on admin authentication, authorization, users, roles, permissions, menus, and operation records.
+
+### Origin
+
+- Repository: `https://github.com/seakee/dudu-admin-api`
+- Source branch: `seakee/go-api:admin`
+- Import baseline: `6df6cfe8aeeb27eaaaee74c7fb7e520af5f8feb2`
+- Compatibility note: the existing `/go-api/...` HTTP route prefix is temporarily retained to avoid breaking callers during the split
 
 ### Key Features
 
@@ -27,28 +34,10 @@
 
 ### Quick Start
 
-#### Method 1: Using Project Generator Script
-
-```bash
-# Download the project generator
-curl -O https://raw.githubusercontent.com/seakee/go-api/main/scripts/generate.sh
-chmod +x generate.sh
-
-# Generate a new project
-./generate.sh my-api-project v1.0.0
-cd my-api-project
-
-# Install dependencies and run
-go mod tidy
-make run
-```
-
-#### Method 2: Clone and Customize
-
 ```bash
 # Clone the repository
-git clone https://github.com/seakee/go-api.git
-cd go-api
+git clone https://github.com/seakee/dudu-admin-api.git
+cd dudu-admin-api
 
 # Install dependencies
 go mod download
@@ -64,7 +53,7 @@ make run
 ### Architecture Overview
 
 ```
-go-api/
+dudu-admin-api/
 ├── app/                             # Application layer
 │   ├── config/                     # Configuration management
 │   │   └── config.go              # Config loader and structures
@@ -169,7 +158,7 @@ Supports multiple environments with JSON-based configuration:
 ```json
 {
   "system": {
-    "name": "go-api",
+    "name": "dudu-admin-api",
     "run_mode": "debug",
     "http_port": ":8080",
     "jwt_secret": "your-secret-key"
@@ -178,7 +167,7 @@ Supports multiple environments with JSON-based configuration:
     {
       "enable": true,
       "db_type": "mysql",
-      "db_name": "go-api",
+      "db_name": "dudu-admin-api",
       "db_host": "localhost",
       "db_port": 3306,
       "charset": "utf8mb4",
@@ -224,7 +213,7 @@ package user
 
 import (
     "github.com/gin-gonic/gin"
-    "github.com/seakee/go-api/app/http"
+    "github.com/seakee/dudu-admin-api/app/http"
 )
 
 type Handler interface {
@@ -242,10 +231,10 @@ func NewHandler(appCtx *http.Context) Handler {
         BaseController: controller.BaseController{
             AppCtx: appCtx,
             Logger: appCtx.Logger,
-            Redis:  appCtx.Redis["go-api"],
+            Redis:  appCtx.Redis["dudu-admin-api"],
             I18n:   appCtx.I18n,
         },
-        service: userService.NewUserService(appCtx.SqlDB["go-api"], appCtx.Redis["go-api"]),
+        service: userService.NewUserService(appCtx.SqlDB["dudu-admin-api"], appCtx.Redis["dudu-admin-api"]),
     }
 }
 ```
@@ -341,7 +330,7 @@ CREATE TABLE `users` (
 # docker-compose.yml
 version: '3.8'
 services:
-  go-api:
+  dudu-admin-api:
     build: .
     ports:
       - "8080:8080"
@@ -350,7 +339,7 @@ services:
       - ./bin/logs:/bin/logs
     environment:
       - RUN_ENV=prod
-      - APP_NAME=go-api
+      - APP_NAME=dudu-admin-api
     depends_on:
       - mysql
       - redis
@@ -359,7 +348,7 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: go-api
+      MYSQL_DATABASE: dudu-admin-api
     ports:
       - "3306:3306"
 
@@ -402,14 +391,14 @@ make docker-run   # Run Docker container
 | Variable | Description | Default |
 |----------|-------------|----------|
 | `RUN_ENV` | Runtime environment | `local` |
-| `APP_NAME` | Application name | `go-api` |
+| `APP_NAME` | Application name | `dudu-admin-api` |
 | `CONFIG_DIR` | Configuration directory | `./bin/configs` |
 
 ### Documentation
 
 Complete project documentation is available in the `docs/` directory:
 
-- **[📚 GitHub Wiki](https://github.com/seakee/go-api/wiki)** - Complete wiki with all documentation
+- **[📚 GitHub Wiki](https://github.com/seakee/dudu-admin-api/wiki)** - Complete wiki with all documentation
 - **[Wiki Home](docs/Home.md)** - Documentation index and quick navigation
 - **[Architecture Design](docs/Architecture-Design.md)** - System architecture and design patterns
 - **[Development Guide](docs/Development-Guide.md)** - Detailed development workflow

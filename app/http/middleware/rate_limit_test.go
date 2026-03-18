@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/config"
+	"github.com/seakee/dudu-admin-api/app/config"
 	"github.com/sk-pkg/redis"
 )
 
@@ -77,7 +77,7 @@ func TestAdminAuthRateLimit_ThrottleAfterLimit(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.Use(middleware{redis: map[string]*redis.Manager{"go-api": manager}}.AdminAuthRateLimit())
+	r.Use(middleware{redis: map[string]*redis.Manager{"dudu-admin-api": manager}}.AdminAuthRateLimit())
 	r.POST("/go-api/internal/admin/auth/token", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)
 	})
@@ -130,7 +130,7 @@ func TestAdminAuthRateLimit_PasskeyLoginPath(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.Use(middleware{redis: map[string]*redis.Manager{"go-api": manager}}.AdminAuthRateLimit())
+	r.Use(middleware{redis: map[string]*redis.Manager{"dudu-admin-api": manager}}.AdminAuthRateLimit())
 	r.POST("/go-api/internal/admin/auth/passkey/login/options", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)
 	})
@@ -164,7 +164,7 @@ func loadRateLimitTestConfig(t *testing.T, enabled bool) {
 
 	cfg := fmt.Sprintf(`{
   "system": {
-    "name": "go-api-test",
+    "name": "dudu-admin-api-test",
     "run_mode": "debug",
     "http_port": ":8080",
     "read_timeout": 60,

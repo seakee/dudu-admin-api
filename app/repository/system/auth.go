@@ -5,9 +5,9 @@ import (
 	"github.com/pkg/errors"
 
 	redigo "github.com/gomodule/redigo/redis"
-	"github.com/seakee/go-api/app/model/system"
-	"github.com/seakee/go-api/app/model/system/permission"
-	"github.com/seakee/go-api/app/model/system/role"
+	"github.com/seakee/dudu-admin-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/model/system/permission"
+	"github.com/seakee/dudu-admin-api/app/model/system/role"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/redis"
 	"github.com/sk-pkg/util"

@@ -7,8 +7,8 @@ package bootstrap
 import (
 	"context"
 
-	"github.com/seakee/go-api/app/job"
-	"github.com/seakee/go-api/app/pkg/schedule"
+	"github.com/seakee/dudu-admin-api/app/job"
+	"github.com/seakee/dudu-admin-api/app/pkg/schedule"
 )
 
 // startSchedule initializes and starts the application's scheduling system.
@@ -20,7 +20,7 @@ import (
 // It uses the application's logger, Redis connection, and TraceID for creating the scheduler.
 func (a *App) startSchedule(ctx context.Context) {
 	// Create a new scheduler instance
-	s := schedule.New(a.Logger, a.Redis["go-api"], a.TraceID)
+	s := schedule.New(a.Logger, a.Redis["dudu-admin-api"], a.TraceID)
 
 	// Register jobs with the scheduler
 	// This function call sets up all the scheduled jobs for the application

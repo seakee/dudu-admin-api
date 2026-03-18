@@ -7,7 +7,7 @@ package bootstrap
 import (
 	"context"
 
-	"github.com/seakee/go-api/app/consumer"
+	"github.com/seakee/dudu-admin-api/app/consumer"
 	"github.com/sk-pkg/kafka"
 )
 
@@ -24,7 +24,7 @@ func (a *App) startKafkaConsumer(ctx context.Context) {
 		// Create a new consumer.Core with common dependencies
 		core := &consumer.Core{
 			Logger:        a.Logger,
-			Redis:         a.Redis["go-api"],
+			Redis:         a.Redis["dudu-admin-api"],
 			SqlDB:         a.SqlDB,
 			KafkaConsumer: a.KafkaConsumer,
 		}

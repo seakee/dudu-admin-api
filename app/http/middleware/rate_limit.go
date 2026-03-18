@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/config"
+	"github.com/seakee/dudu-admin-api/app/config"
 	"github.com/sk-pkg/redis"
 	"github.com/sk-pkg/util"
 	"go.uber.org/zap"
@@ -58,7 +58,7 @@ func (m middleware) AdminAuthRateLimit() gin.HandlerFunc {
 			maxRequests = adminAuthRateLimitMaxDefault
 		}
 
-		manager := m.redis["go-api"]
+		manager := m.redis["dudu-admin-api"]
 		if manager == nil {
 			c.Next()
 			return

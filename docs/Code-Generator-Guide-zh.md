@@ -243,7 +243,7 @@ package users
 
 import (
     "context"
-    "github.com/seakee/go-api/app/model/users"
+    "github.com/seakee/dudu-admin-api/app/model/users"
     "github.com/sk-pkg/redis"
     "gorm.io/gorm"
 )

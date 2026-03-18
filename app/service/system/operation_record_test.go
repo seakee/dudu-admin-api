@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	repo "github.com/seakee/go-api/app/repository/system"
+	repo "github.com/seakee/dudu-admin-api/app/repository/system"
 	"testing"
 	"time"
 
-	"github.com/seakee/go-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/model/system"
 	"gorm.io/gorm"
 )
 

@@ -78,7 +78,7 @@ graph TD
 
 ### 🔗 External Resources
 
-- **[GitHub Repository](https://github.com/seakee/go-api)** - Source code and issues
+- **[GitHub Repository](https://github.com/seakee/dudu-admin-api)** - Source code and issues
 - **[Go Documentation](https://golang.org/doc/)** - Official Go documentation
 - **[Gin Framework](https://gin-gonic.com/)** - Web framework documentation
 - **[GORM](https://gorm.io/)** - ORM library documentation
@@ -94,8 +94,8 @@ We welcome contributions! Please see our [Contributing Guidelines](../CONTRIBUTI
 
 ### 📞 Support & Community
 
-- **Issues**: [GitHub Issues](https://github.com/seakee/go-api/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/seakee/go-api/discussions)
+- **Issues**: [GitHub Issues](https://github.com/seakee/dudu-admin-api/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/seakee/dudu-admin-api/discussions)
 - **Email**: seakee23@gmail.com
 
 ### License

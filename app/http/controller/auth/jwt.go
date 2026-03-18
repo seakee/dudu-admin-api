@@ -6,9 +6,9 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/model/auth"
-	"github.com/seakee/go-api/app/pkg/e"
-	"github.com/seakee/go-api/app/pkg/jwt"
+	"github.com/seakee/dudu-admin-api/app/model/auth"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	"github.com/seakee/dudu-admin-api/app/pkg/jwt"
 )
 
 // appTokenExpireTime defines the expiration time for app tokens in seconds (7 days).

@@ -6,7 +6,7 @@ package main
 
 import (
 	"flag"
-	"github.com/seakee/go-api/command/codegen/codegen"
+	"github.com/seakee/dudu-admin-api/command/codegen/codegen"
 	"log"
 	"os"
 	"path/filepath"

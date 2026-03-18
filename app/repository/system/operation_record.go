@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/seakee/go-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/model/system"
 	"github.com/sk-pkg/logger"
 	"gorm.io/gorm"
 )
