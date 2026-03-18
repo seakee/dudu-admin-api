@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/seakee/go-api/app/pkg/e"
-	pwd "github.com/seakee/go-api/app/pkg/password"
-	repo "github.com/seakee/go-api/app/repository/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	pwd "github.com/seakee/dudu-admin-api/app/pkg/password"
+	repo "github.com/seakee/dudu-admin-api/app/repository/system"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

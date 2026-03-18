@@ -20,7 +20,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/seakee/go-api.git
+git clone https://github.com/seakee/dudu-admin-api.git
 cd go-api
 
 # Install dependencies
@@ -160,7 +160,7 @@ package user
 
 import (
     "context"
-    "github.com/seakee/go-api/app/model/user"
+    "github.com/seakee/dudu-admin-api/app/model/user"
     "github.com/sk-pkg/redis"
     "gorm.io/gorm"
 )
@@ -197,8 +197,8 @@ package user
 
 import (
     "context"
-    "github.com/seakee/go-api/app/model/user"
-    userRepo "github.com/seakee/go-api/app/repository/user"
+    "github.com/seakee/dudu-admin-api/app/model/user"
+    userRepo "github.com/seakee/dudu-admin-api/app/repository/user"
     "github.com/sk-pkg/redis"
     "gorm.io/gorm"
 )
@@ -262,9 +262,9 @@ package user
 
 import (
     "github.com/gin-gonic/gin"
-    "github.com/seakee/go-api/app/http"
-    "github.com/seakee/go-api/app/http/controller"
-    userService "github.com/seakee/go-api/app/service/user"
+    "github.com/seakee/dudu-admin-api/app/http"
+    "github.com/seakee/dudu-admin-api/app/http/controller"
+    userService "github.com/seakee/dudu-admin-api/app/service/user"
 )
 
 type Handler interface {
@@ -322,8 +322,8 @@ package user
 
 import (
     "github.com/gin-gonic/gin"
-    "github.com/seakee/go-api/app/http"
-    "github.com/seakee/go-api/app/http/controller/user"
+    "github.com/seakee/dudu-admin-api/app/http"
+    "github.com/seakee/dudu-admin-api/app/http/controller/user"
 )
 
 func RegisterRoutes(api *gin.RouterGroup, ctx *http.Context) {
@@ -595,7 +595,7 @@ volumes:
 
 ```bash
 # 克隆仓库
-git clone https://github.com/seakee/go-api.git
+git clone https://github.com/seakee/dudu-admin-api.git
 cd go-api
 
 # 安装依赖

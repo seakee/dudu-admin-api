@@ -12,7 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/seakee/go-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/model/system"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/util"
 	"go.uber.org/zap"

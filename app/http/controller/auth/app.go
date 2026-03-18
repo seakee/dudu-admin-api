@@ -6,8 +6,8 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/pkg/e"
-	authService "github.com/seakee/go-api/app/service/auth"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	authService "github.com/seakee/dudu-admin-api/app/service/auth"
 )
 
 // StoreAppReqParams defines the structure for storing app request parameters.

@@ -12,12 +12,12 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/seakee/go-api/app/config"
-	"github.com/seakee/go-api/app/model/system"
-	"github.com/seakee/go-api/app/pkg/e"
-	pwd "github.com/seakee/go-api/app/pkg/password"
-	"github.com/seakee/go-api/app/pkg/totp"
-	repo "github.com/seakee/go-api/app/repository/system"
+	"github.com/seakee/dudu-admin-api/app/config"
+	"github.com/seakee/dudu-admin-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	pwd "github.com/seakee/dudu-admin-api/app/pkg/password"
+	"github.com/seakee/dudu-admin-api/app/pkg/totp"
+	repo "github.com/seakee/dudu-admin-api/app/repository/system"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/notify"
 	"github.com/sk-pkg/redis"
@@ -773,7 +773,7 @@ func (a authService) getFeishuUserAccessToken(ctx context.Context, code string) 
 		} `json:"data"`
 	}
 
-	appToken, err := a.notify.Lark.GetToken("go-api")
+	appToken, err := a.notify.Lark.GetToken("dudu-admin-api")
 	if err != nil {
 		return
 	}
@@ -1311,7 +1311,7 @@ func NewAuthService(redis *redis.Manager, logger *logger.Manager, db *gorm.DB, n
 		userRepo:     repo.NewUserRepo(db, redis, logger),
 		identityRepo: repo.NewUserIdentityRepo(db, redis, logger),
 		passkeyRepo:  repo.NewUserPasskeyRepo(db, redis, logger),
-		totp:         totp.NewGenerator("go-api-admin"),
+		totp:         totp.NewGenerator("dudu-admin-api-admin"),
 		authRepo:     repo.NewAuthRepo(db, redis, logger),
 		menuRepo:     repo.NewMenuRepo(db, redis, logger),
 		config:       cfg,

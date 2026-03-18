@@ -7,8 +7,8 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/seakee/go-api/app/model/system"
-	"github.com/seakee/go-api/app/pkg/e"
+	"github.com/seakee/dudu-admin-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
 )
 
 // TestMenuService_List tests fetching the menu list.

@@ -9,8 +9,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/seakee/go-api/app/model/auth"
-	authRepo "github.com/seakee/go-api/app/repository/auth"
+	"github.com/seakee/dudu-admin-api/app/model/auth"
+	authRepo "github.com/seakee/dudu-admin-api/app/repository/auth"
 	"github.com/sk-pkg/redis"
 	"github.com/sk-pkg/util"
 	"gorm.io/gorm"
@@ -115,7 +115,7 @@ func (s *appService) CreateApp(ctx context.Context, params *CreateAppParams) (*C
 	// Create new app
 	app := &auth.App{
 		AppName:     params.AppName,
-		AppId:       "go-api-" + util.RandLowStr(8),
+		AppId:       "dudu-admin-api-" + util.RandLowStr(8),
 		AppSecret:   util.RandUpStr(32),
 		RedirectUri: params.RedirectUri,
 		Description: params.Description,

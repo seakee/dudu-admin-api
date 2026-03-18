@@ -119,8 +119,8 @@ import (
     "gorm.io/gorm"
     
     // Local imports last
-    "github.com/seakee/go-api/app/model/auth"
-    "github.com/seakee/go-api/app/service/auth"
+    "github.com/seakee/dudu-admin-api/app/model/auth"
+    "github.com/seakee/dudu-admin-api/app/service/auth"
 )
 ```
 
@@ -496,8 +496,8 @@ import (
     "gorm.io/gorm"
     
     // 本地导入最后
-    "github.com/seakee/go-api/app/model/auth"
-    "github.com/seakee/go-api/app/service/auth"
+    "github.com/seakee/dudu-admin-api/app/model/auth"
+    "github.com/seakee/dudu-admin-api/app/service/auth"
 )
 ```
 

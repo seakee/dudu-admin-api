@@ -9,14 +9,14 @@ package bootstrap
 
 import (
 	"context"
-	"github.com/seakee/go-api/app/config"
+	"github.com/seakee/dudu-admin-api/app/config"
 	"github.com/sk-pkg/notify/lark"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/qiniu/qmgo"
-	"github.com/seakee/go-api/app/http/middleware"
-	"github.com/seakee/go-api/app/pkg/trace"
+	"github.com/seakee/dudu-admin-api/app/http/middleware"
+	"github.com/seakee/dudu-admin-api/app/pkg/trace"
 	"github.com/sk-pkg/i18n"
 	"github.com/sk-pkg/kafka"
 	"github.com/sk-pkg/logger"

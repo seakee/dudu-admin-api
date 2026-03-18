@@ -7,9 +7,9 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/http"
-	"github.com/seakee/go-api/app/http/router/external"
-	"github.com/seakee/go-api/app/http/router/internal"
+	"github.com/seakee/dudu-admin-api/app/http"
+	"github.com/seakee/dudu-admin-api/app/http/router/external"
+	"github.com/seakee/dudu-admin-api/app/http/router/internal"
 )
 
 func Register(engine *gin.Engine, ctx *http.Context) {

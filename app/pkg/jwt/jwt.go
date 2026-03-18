@@ -3,15 +3,15 @@
 // license that can be found in the LICENSE file.
 
 // Package jwt provides functionality for generating and parsing JSON Web Tokens (JWT)
-// specifically for application authentication in the go-api project.
+// specifically for application authentication in the dudu-admin-api project.
 package jwt
 
 import (
-	"github.com/seakee/go-api/app/config"
+	"github.com/seakee/dudu-admin-api/app/config"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/seakee/go-api/app/model/auth"
+	"github.com/seakee/dudu-admin-api/app/model/auth"
 )
 
 // ServerClaims represents the custom claims structure for the JWT.
@@ -52,7 +52,7 @@ func GenerateAppToken(App *auth.App, expireTime time.Duration) (token string, er
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Issuer:    "go-api",
+			Issuer:    "dudu-admin-api",
 		},
 	}
 

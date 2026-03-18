@@ -7,8 +7,8 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/pkg/trace"
-	"github.com/seakee/go-api/app/service/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/trace"
+	"github.com/seakee/dudu-admin-api/app/service/system"
 	"github.com/sk-pkg/i18n"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/notify"
@@ -55,7 +55,7 @@ func New(logger *logger.Manager, i18n *i18n.Manager, db map[string]*gorm.DB, red
 		db:                     db,
 		redis:                  redis,
 		traceID:                traceID,
-		authService:            system.NewAuthService(redis["go-api"], logger, db["go-api"], notify),
-		operationRecordService: system.NewOperationRecordService(redis["go-api"], logger, db["go-api"]),
+		authService:            system.NewAuthService(redis["dudu-admin-api"], logger, db["dudu-admin-api"], notify),
+		operationRecordService: system.NewOperationRecordService(redis["dudu-admin-api"], logger, db["dudu-admin-api"]),
 	}
 }

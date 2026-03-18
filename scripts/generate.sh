@@ -541,7 +541,7 @@ fi
 print_info "Cloning go-api repository..."
 
 # Clone with enhanced error handling
-if ! clone_repository "https://github.com/seakee/go-api.git" "$projectVersion" "$projectDir"; then
+if ! clone_repository "https://github.com/seakee/dudu-admin-api.git" "$projectVersion" "$projectDir"; then
     print_error "Failed to clone repository after multiple attempts."
     print_error "Please check:"
     print_error "  - Internet connection"
@@ -584,7 +584,7 @@ cleanup_git_references() {
 
     # Clean up any remaining git references in files - use the module name
     print_info "Cleaning remaining git references in files"
-    replace_in_files_cross_platform "github.com/seakee/go-api" "$module_name" "$project_dir"
+    replace_in_files_cross_platform "github.com/seakee/dudu-admin-api" "$module_name" "$project_dir"
 
     # Clean up author and contributor information
     local readme_file="$project_dir/README.md"
@@ -826,7 +826,7 @@ If you encounter any issues or have questions:
 
 ## Acknowledgments
 
-- Built with [go-api](https://github.com/seakee/go-api) framework
+- Built with [go-api](https://github.com/seakee/dudu-admin-api) framework
 - Powered by [Gin](https://gin-gonic.com/) web framework
 - Database integration with [GORM](https://gorm.io/)
 - Logging with [Zap](https://go.uber.org/zap)
@@ -909,7 +909,7 @@ if [[ "$projectName" != "go-api" || "$moduleName" != "go-api" ]]; then
         print_info "Updating go.mod module name..."
         temp_file="go.mod.tmp.$$"
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            if sed "s|module github.com/seakee/go-api|module $moduleName|g" go.mod > "$temp_file" && mv "$temp_file" go.mod; then
+            if sed "s|module github.com/seakee/dudu-admin-api|module $moduleName|g" go.mod > "$temp_file" && mv "$temp_file" go.mod; then
                 print_success "go.mod updated successfully"
             else
                 print_error "Failed to update go.mod"
@@ -917,7 +917,7 @@ if [[ "$projectName" != "go-api" || "$moduleName" != "go-api" ]]; then
                 exit 1
             fi
         else
-            if sed -i "s|module github.com/seakee/go-api|module $moduleName|g" go.mod; then
+            if sed -i "s|module github.com/seakee/dudu-admin-api|module $moduleName|g" go.mod; then
                 print_success "go.mod updated successfully"
             else
                 print_error "Failed to update go.mod"

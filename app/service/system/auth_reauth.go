@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	systemModel "github.com/seakee/go-api/app/model/system"
-	"github.com/seakee/go-api/app/pkg/e"
-	pwd "github.com/seakee/go-api/app/pkg/password"
+	systemModel "github.com/seakee/dudu-admin-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	pwd "github.com/seakee/dudu-admin-api/app/pkg/password"
 )
 
 const (

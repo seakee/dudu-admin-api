@@ -5,8 +5,8 @@ import (
 	"io"
 
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/pkg/e"
-	"github.com/seakee/go-api/app/service/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	"github.com/seakee/dudu-admin-api/app/service/system"
 )
 
 func (h handler) BeginPasskeyRegistration() gin.HandlerFunc {

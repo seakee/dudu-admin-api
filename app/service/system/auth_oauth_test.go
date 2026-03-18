@@ -7,17 +7,17 @@ import (
 	"time"
 
 	"github.com/glebarez/sqlite"
-	"github.com/seakee/go-api/app/config"
-	systemModel "github.com/seakee/go-api/app/model/system"
-	"github.com/seakee/go-api/app/pkg/e"
-	pwd "github.com/seakee/go-api/app/pkg/password"
-	"github.com/seakee/go-api/app/pkg/totp"
-	repo "github.com/seakee/go-api/app/repository/system"
+	"github.com/seakee/dudu-admin-api/app/config"
+	systemModel "github.com/seakee/dudu-admin-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	pwd "github.com/seakee/dudu-admin-api/app/pkg/password"
+	"github.com/seakee/dudu-admin-api/app/pkg/totp"
+	repo "github.com/seakee/dudu-admin-api/app/repository/system"
 	"gorm.io/gorm"
 )
 
 func TestAuthService_Reauth(t *testing.T) {
-	generator := totp.NewGenerator("go-api-admin")
+	generator := totp.NewGenerator("dudu-admin-api-admin")
 	totpKey := "JBSWY3DPEHPK3PXP"
 	validTotpCode := generator.GenerateTOTPCode(totpKey, time.Now())
 	passwordHash, err := pwd.HashCredential("pwd")

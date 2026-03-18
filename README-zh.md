@@ -1,4 +1,4 @@
-# Go-API 框架
+# Dudu Admin API
 
 **语言版本**: [English](README.md) | [中文](README-zh.md)
 
@@ -6,7 +6,14 @@
 
 ### 项目概述
 
-`go-api` 是一个功能强大、高性能的 Go 语言框架，专为构建企业级 Web API 而设计。它提供了完整的解决方案，包括分层架构、依赖注入、全面的中间件支持和自动代码生成功能。
+`dudu-admin-api` 是从 [`seakee/go-api`](https://github.com/seakee/go-api) 的 `admin` 分支拆分出来的独立后台管理后端项目，完整保留了原始 Git 历史，当前聚焦后台认证鉴权、用户、角色、权限、菜单和操作记录等能力。
+
+### 项目来源
+
+- 仓库地址: `https://github.com/seakee/dudu-admin-api`
+- 来源分支: `seakee/go-api:admin`
+- 导入基线: `6df6cfe8aeeb27eaaaee74c7fb7e520af5f8feb2`
+- 兼容说明: 当前仍保留 `/go-api/...` HTTP 路由前缀，避免拆分当下影响现有调用方
 
 ### 主要特性
 
@@ -27,28 +34,10 @@
 
 ### 快速开始
 
-#### 方法一：使用项目生成脚本
-
-```bash
-# 下载项目生成器
-curl -O https://raw.githubusercontent.com/seakee/go-api/main/scripts/generate.sh
-chmod +x generate.sh
-
-# 生成新项目
-./generate.sh my-api-project v1.0.0
-cd my-api-project
-
-# 安装依赖并运行
-go mod tidy
-make run
-```
-
-#### 方法二：克隆并自定义
-
 ```bash
 # 克隆仓库
-git clone https://github.com/seakee/go-api.git
-cd go-api
+git clone https://github.com/seakee/dudu-admin-api.git
+cd dudu-admin-api
 
 # 安装依赖
 go mod download
@@ -64,7 +53,7 @@ make run
 ### 项目结构
 
 ```
-go-api/
+dudu-admin-api/
 ├── app/                             # 应用层
 │   ├── config/                     # 配置管理
 │   │   └── config.go              # 配置加载器和结构
@@ -170,7 +159,7 @@ go-api/
 ```json
 {
   "system": {
-    "name": "go-api",
+    "name": "dudu-admin-api",
     "run_mode": "debug",
     "http_port": ":8080",
     "jwt_secret": "你的密钥"
@@ -179,7 +168,7 @@ go-api/
     {
       "enable": true,
       "db_type": "mysql",
-      "db_name": "go-api",
+      "db_name": "dudu-admin-api",
       "db_host": "localhost",
       "db_port": 3306,
       "charset": "utf8mb4",
@@ -225,7 +214,7 @@ package user
 
 import (
     "github.com/gin-gonic/gin"
-    "github.com/seakee/go-api/app/http"
+    "github.com/seakee/dudu-admin-api/app/http"
 )
 
 type Handler interface {
@@ -243,10 +232,10 @@ func NewHandler(appCtx *http.Context) Handler {
         BaseController: controller.BaseController{
             AppCtx: appCtx,
             Logger: appCtx.Logger,
-            Redis:  appCtx.Redis["go-api"],
+            Redis:  appCtx.Redis["dudu-admin-api"],
             I18n:   appCtx.I18n,
         },
-        service: userService.NewUserService(appCtx.SqlDB["go-api"], appCtx.Redis["go-api"]),
+        service: userService.NewUserService(appCtx.SqlDB["dudu-admin-api"], appCtx.Redis["dudu-admin-api"]),
     }
 }
 ```
@@ -323,7 +312,7 @@ go run ./command/codegen/handler.go -sql custom/sql -model custom/model
 # docker-compose.yml
 version: '3.8'
 services:
-  go-api:
+  dudu-admin-api:
     build: .
     ports:
       - "8080:8080"
@@ -332,7 +321,7 @@ services:
       - ./bin/logs:/bin/logs
     environment:
       - RUN_ENV=prod
-      - APP_NAME=go-api
+      - APP_NAME=dudu-admin-api
     depends_on:
       - mysql
       - redis
@@ -341,7 +330,7 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: go-api
+      MYSQL_DATABASE: dudu-admin-api
     ports:
       - "3306:3306"
 
@@ -384,14 +373,14 @@ make docker-run   # 运行Docker容器
 | 变量 | 描述 | 默认值 |
 |------|------|--------|
 | `RUN_ENV` | 运行环境 | `local` |
-| `APP_NAME` | 应用名称 | `go-api` |
+| `APP_NAME` | 应用名称 | `dudu-admin-api` |
 | `CONFIG_DIR` | 配置目录 | `./bin/configs` |
 
 ### 文档
 
 完整的项目文档位于 `docs/` 目录：
 
-- **[📚 GitHub Wiki](https://github.com/seakee/go-api/wiki)** - 完整的Wiki文档
+- **[📚 GitHub Wiki](https://github.com/seakee/dudu-admin-api/wiki)** - 完整的Wiki文档
 - **[Wiki首页](docs/Home.md)** - 文档索引和快速导航
 - **[架构设计](docs/Architecture-Design.md)** - 系统架构和设计模式
 - **[开发指南](docs/Development-Guide.md)** - 详细的开发工作流程
