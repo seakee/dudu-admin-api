@@ -4,6 +4,7 @@
     "route_prefix": "go-api",
     "run_mode": "debug",
     "http_port": ":8080",
+    "api_prefix": "dudu-admin-api",
     "read_timeout": 60,
     "write_timeout": 60,
     "version": "1.0.0",

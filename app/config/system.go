@@ -8,6 +8,7 @@ import (
 type SysConfig struct {
 	Name         string        `json:"name"`          // Application name
 	RoutePrefix  string        `json:"route_prefix"`  // HTTP route prefix
+	APIPrefix    string        `json:"api_prefix"`    // Base API route prefix, defaults to "dudu-admin-api"
 	RunMode      string        `json:"run_mode"`      // Running mode
 	HTTPPort     string        `json:"http_port"`     // HTTP server port
 	ReadTimeout  time.Duration `json:"read_timeout"`  // Maximum request timeout
