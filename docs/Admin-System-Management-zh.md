@@ -18,8 +18,8 @@
 ## 认证方式
 - Header：`Authorization: Bearer <admin-token>`
 - Cookie（可选）：`admin-token=<token>`
-- 所有路由均注册在 `/go-api/internal/admin/system` 路径下，并由 `CheckAdminAuth` 中间件校验。
-- `/go-api/internal/admin/*` 路径统一经过 `SaveOperationRecord` 中间件，系统管理接口会写入操作日志。
+- 所有路由均注册在 `/dudu-admin-api/internal/admin/system` 路径下，并由 `CheckAdminAuth` 中间件校验。
+- `/dudu-admin-api/internal/admin/system/*` 路径统一经过 `SaveOperationRecord` 中间件，系统管理接口会写入操作日志。
 
 ## 通用响应格式
 ```json
@@ -68,13 +68,13 @@
 ## 接口总览
 | 功能 | 方法 | 路径 |
 | ---- | ---- | ---- |
-| 系统健康检查 | GET | `/go-api/internal/admin/system/ping` |
+| 系统健康检查 | GET | `/dudu-admin-api/internal/admin/system/ping` |
 
 ---
 
 ### 1. 系统健康检查
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/ping`
+- **Path**：`/dudu-admin-api/internal/admin/system/ping`
 - **说明**：用于后台系统可用性检测
 
 - **响应示例**：
@@ -93,18 +93,18 @@
 ## 接口总览
 | 功能 | 方法 | 路径 |
 | ---- | ---- | ---- |
-| 分页查询用户 | GET | `/go-api/internal/admin/system/user/paginate` |
-| 用户详情 | GET | `/go-api/internal/admin/system/user` |
-| 创建用户 | POST | `/go-api/internal/admin/system/user` |
-| 更新用户 | PUT | `/go-api/internal/admin/system/user` |
-| 删除用户 | DELETE | `/go-api/internal/admin/system/user` |
-| 获取用户角色 | GET | `/go-api/internal/admin/system/user/role` |
-| 更新用户角色 | PUT | `/go-api/internal/admin/system/user/role` |
-| 管理员重置用户密码 | PUT | `/go-api/internal/admin/system/user/password/reset` |
-| 管理员关闭用户 TFA | PUT | `/go-api/internal/admin/system/user/tfa/disable` |
-| 查询用户 Passkey | GET | `/go-api/internal/admin/system/user/passkeys` |
-| 删除单个用户 Passkey | DELETE | `/go-api/internal/admin/system/user/passkey` |
-| 删除用户全部 Passkey | DELETE | `/go-api/internal/admin/system/user/passkeys` |
+| 分页查询用户 | GET | `/dudu-admin-api/internal/admin/system/user/paginate` |
+| 用户详情 | GET | `/dudu-admin-api/internal/admin/system/user` |
+| 创建用户 | POST | `/dudu-admin-api/internal/admin/system/user` |
+| 更新用户 | PUT | `/dudu-admin-api/internal/admin/system/user` |
+| 删除用户 | DELETE | `/dudu-admin-api/internal/admin/system/user` |
+| 获取用户角色 | GET | `/dudu-admin-api/internal/admin/system/user/role` |
+| 更新用户角色 | PUT | `/dudu-admin-api/internal/admin/system/user/role` |
+| 管理员重置用户密码 | PUT | `/dudu-admin-api/internal/admin/system/user/password/reset` |
+| 管理员关闭用户 TFA | PUT | `/dudu-admin-api/internal/admin/system/user/tfa/disable` |
+| 查询用户 Passkey | GET | `/dudu-admin-api/internal/admin/system/user/passkeys` |
+| 删除单个用户 Passkey | DELETE | `/dudu-admin-api/internal/admin/system/user/passkey` |
+| 删除用户全部 Passkey | DELETE | `/dudu-admin-api/internal/admin/system/user/passkeys` |
 
 > **密码字段口径（与 `docs/Admin-Auth-zh.md` 一致）**：
 > `password` 建议统一传 `md5(明文密码)`；服务端将使用 bcrypt 存储该摘要。
@@ -113,7 +113,7 @@
 
 ### 1. 分页查询用户
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/user/paginate`
+- **Path**：`/dudu-admin-api/internal/admin/system/user/paginate`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 默认值 | 说明 |
@@ -127,7 +127,7 @@
 
 - **示例请求**：
   ```http
-  GET http://127.0.0.1:8080/go-api/internal/admin/system/user/paginate?page=1&page_size=10
+  GET http://127.0.0.1:8080/dudu-admin-api/internal/admin/system/user/paginate?page=1&page_size=10
   Authorization: Bearer <admin-token>
   ```
 
@@ -175,7 +175,7 @@
 
 ### 2. 用户详情
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/user`
+- **Path**：`/dudu-admin-api/internal/admin/system/user`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -190,7 +190,7 @@
 
 ### 3. 创建用户
 - **Method**：POST
-- **Path**：`/go-api/internal/admin/system/user`
+- **Path**：`/dudu-admin-api/internal/admin/system/user`
 - **Body（JSON）**：
   ```json
   {
@@ -220,7 +220,7 @@
 
 ### 4. 更新用户
 - **Method**：PUT
-- **Path**：`/go-api/internal/admin/system/user`
+- **Path**：`/dudu-admin-api/internal/admin/system/user`
 - **Body（JSON）**：
   ```json
   {
@@ -252,7 +252,7 @@
 
 ### 5. 删除用户
 - **Method**：DELETE
-- **Path**：`/go-api/internal/admin/system/user`
+- **Path**：`/dudu-admin-api/internal/admin/system/user`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -269,7 +269,7 @@
 
 ### 6. 获取用户角色
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/user/role`
+- **Path**：`/dudu-admin-api/internal/admin/system/user/role`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -295,7 +295,7 @@
 
 ### 7. 更新用户角色
 - **Method**：PUT
-- **Path**：`/go-api/internal/admin/system/user/role`
+- **Path**：`/dudu-admin-api/internal/admin/system/user/role`
 - **Body（JSON）**：
   ```json
   {
@@ -319,7 +319,7 @@
 
 ### 8. 管理员重置用户密码
 - **Method**：PUT
-- **Path**：`/go-api/internal/admin/system/user/password/reset`
+- **Path**：`/dudu-admin-api/internal/admin/system/user/password/reset`
 - **说明**：管理员重置指定用户密码（与鉴权模块的“当前用户重置密码”区分）
 - **Body（JSON）**：
   ```json
@@ -349,7 +349,7 @@
 
 ### 9. 管理员关闭用户 TFA
 - **Method**：PUT
-- **Path**：`/go-api/internal/admin/system/user/tfa/disable`
+- **Path**：`/dudu-admin-api/internal/admin/system/user/tfa/disable`
 - **说明**：管理员强制关闭指定用户 TFA（无需该用户的 totp_code）
 - **Body（JSON）**：
   ```json
@@ -377,7 +377,7 @@
 
 ### 10. 查询用户 Passkey
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/user/passkeys`
+- **Path**：`/dudu-admin-api/internal/admin/system/user/passkeys`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -422,7 +422,7 @@
 
 ### 11. 删除单个用户 Passkey
 - **Method**：DELETE
-- **Path**：`/go-api/internal/admin/system/user/passkey`
+- **Path**：`/dudu-admin-api/internal/admin/system/user/passkey`
 - **Body（JSON）**：
   ```json
   {
@@ -449,7 +449,7 @@
 
 ### 12. 删除用户全部 Passkey
 - **Method**：DELETE
-- **Path**：`/go-api/internal/admin/system/user/passkeys`
+- **Path**：`/dudu-admin-api/internal/admin/system/user/passkeys`
 - **Body（JSON）**：
   ```json
   {
@@ -484,21 +484,21 @@
 ## 接口总览
 | 功能 | 方法 | 路径 |
 | ---- | ---- | ---- |
-| 角色列表（无分页） | GET | `/go-api/internal/admin/system/role/list` |
-| 分页查询角色 | GET | `/go-api/internal/admin/system/role/paginate` |
-| 角色详情 | GET | `/go-api/internal/admin/system/role` |
-| 创建角色 | POST | `/go-api/internal/admin/system/role` |
-| 更新角色 | PUT | `/go-api/internal/admin/system/role` |
-| 删除角色 | DELETE | `/go-api/internal/admin/system/role` |
-| 获取角色权限 | GET | `/go-api/internal/admin/system/role/permission` |
-| 获取角色菜单权限树 | GET | `/go-api/internal/admin/system/role/permission/menu-tree` |
-| 更新角色权限 | PUT | `/go-api/internal/admin/system/role/permission` |
+| 角色列表（无分页） | GET | `/dudu-admin-api/internal/admin/system/role/list` |
+| 分页查询角色 | GET | `/dudu-admin-api/internal/admin/system/role/paginate` |
+| 角色详情 | GET | `/dudu-admin-api/internal/admin/system/role` |
+| 创建角色 | POST | `/dudu-admin-api/internal/admin/system/role` |
+| 更新角色 | PUT | `/dudu-admin-api/internal/admin/system/role` |
+| 删除角色 | DELETE | `/dudu-admin-api/internal/admin/system/role` |
+| 获取角色权限 | GET | `/dudu-admin-api/internal/admin/system/role/permission` |
+| 获取角色菜单权限树 | GET | `/dudu-admin-api/internal/admin/system/role/permission/menu-tree` |
+| 更新角色权限 | PUT | `/dudu-admin-api/internal/admin/system/role/permission` |
 
 ---
 
 ### 1. 角色列表（无分页）
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/role/list`
+- **Path**：`/dudu-admin-api/internal/admin/system/role/list`
 - **说明**：获取所有角色的简要信息，通常用于下拉选择框
 
 - **响应示例**：
@@ -517,7 +517,7 @@
 
 ### 2. 分页查询角色
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/role/paginate`
+- **Path**：`/dudu-admin-api/internal/admin/system/role/paginate`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 默认值 | 说明 |
@@ -542,7 +542,7 @@
 
 ### 3. 角色详情
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/role`
+- **Path**：`/dudu-admin-api/internal/admin/system/role`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -556,7 +556,7 @@
 
 ### 4. 创建角色
 - **Method**：POST
-- **Path**：`/go-api/internal/admin/system/role`
+- **Path**：`/dudu-admin-api/internal/admin/system/role`
 - **Body（JSON）**：
   ```json
   {
@@ -578,7 +578,7 @@
 
 ### 5. 更新角色
 - **Method**：PUT
-- **Path**：`/go-api/internal/admin/system/role`
+- **Path**：`/dudu-admin-api/internal/admin/system/role`
 - **Body（JSON）**：
   ```json
   {
@@ -594,7 +594,7 @@
 
 ### 6. 删除角色
 - **Method**：DELETE
-- **Path**：`/go-api/internal/admin/system/role`
+- **Path**：`/dudu-admin-api/internal/admin/system/role`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -608,7 +608,7 @@
 
 ### 7. 获取角色权限
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/role/permission`
+- **Path**：`/dudu-admin-api/internal/admin/system/role/permission`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -625,7 +625,7 @@
 
 ### 8. 更新角色权限
 - **Method**：PUT
-- **Path**：`/go-api/internal/admin/system/role/permission`
+- **Path**：`/dudu-admin-api/internal/admin/system/role/permission`
 - **Body（JSON）**：
   ```json
   {
@@ -647,7 +647,7 @@
 
 ### 9. 获取角色菜单权限树
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/role/permission/menu-tree`
+- **Path**：`/dudu-admin-api/internal/admin/system/role/permission/menu-tree`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -715,20 +715,20 @@
 ## 接口总览
 | 功能 | 方法 | 路径 |
 | ---- | ---- | ---- |
-| 可用权限列表 | GET | `/go-api/internal/admin/system/permission/available` |
-| 权限列表（按分组） | GET | `/go-api/internal/admin/system/permission/list` |
-| 分页查询权限 | GET | `/go-api/internal/admin/system/permission/paginate` |
-| 权限详情 | GET | `/go-api/internal/admin/system/permission` |
-| 创建权限 | POST | `/go-api/internal/admin/system/permission` |
-| 更新权限 | PUT | `/go-api/internal/admin/system/permission` |
-| 删除权限 | DELETE | `/go-api/internal/admin/system/permission` |
+| 可用权限列表 | GET | `/dudu-admin-api/internal/admin/system/permission/available` |
+| 权限列表（按分组） | GET | `/dudu-admin-api/internal/admin/system/permission/list` |
+| 分页查询权限 | GET | `/dudu-admin-api/internal/admin/system/permission/paginate` |
+| 权限详情 | GET | `/dudu-admin-api/internal/admin/system/permission` |
+| 创建权限 | POST | `/dudu-admin-api/internal/admin/system/permission` |
+| 更新权限 | PUT | `/dudu-admin-api/internal/admin/system/permission` |
+| 删除权限 | DELETE | `/dudu-admin-api/internal/admin/system/permission` |
 
 ---
 
 ### 1. 可用权限列表
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/permission/available`
-- **说明**：获取系统中“尚未创建 permission 记录”的后台路由列表（仅 `/go-api/internal/admin/*`，不含 `ping`）
+- **Path**：`/dudu-admin-api/internal/admin/system/permission/available`
+- **说明**：获取系统中“尚未创建 permission 记录”的后台路由列表（仅 `/dudu-admin-api/internal/admin/*`，不含 `ping`）
 
 - **响应结构**：按 HTTP Method 分组
 
@@ -747,11 +747,11 @@
     "msg": "OK",
     "data": {
       "GET": [
-        "/go-api/internal/admin/system/user",
-        "/go-api/internal/admin/system/role/list"
+        "/dudu-admin-api/internal/admin/system/user",
+        "/dudu-admin-api/internal/admin/system/role/list"
       ],
       "POST": [
-        "/go-api/internal/admin/system/user"
+        "/dudu-admin-api/internal/admin/system/user"
       ]
     }
   }
@@ -761,7 +761,7 @@
 
 ### 2. 权限列表（按分组）
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/permission/list`
+- **Path**：`/dudu-admin-api/internal/admin/system/permission/list`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -791,7 +791,7 @@
 
 ### 3. 分页查询权限
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/permission/paginate`
+- **Path**：`/dudu-admin-api/internal/admin/system/permission/paginate`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 默认值 | 说明 |
@@ -823,7 +823,7 @@
 
 ### 4. 权限详情
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/permission`
+- **Path**：`/dudu-admin-api/internal/admin/system/permission`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -837,14 +837,14 @@
 
 ### 5. 创建权限
 - **Method**：POST
-- **Path**：`/go-api/internal/admin/system/permission`
+- **Path**：`/dudu-admin-api/internal/admin/system/permission`
 - **Body（JSON）**：
   ```json
   {
     "name": "查看用户",
     "type": "api",
     "method": "GET",
-    "path": "/go-api/internal/admin/system/user",
+    "path": "/dudu-admin-api/internal/admin/system/user",
     "description": "获取用户信息权限",
     "group": "用户管理"
   }
@@ -867,7 +867,7 @@
 
 ### 6. 更新权限
 - **Method**：PUT
-- **Path**：`/go-api/internal/admin/system/permission`
+- **Path**：`/dudu-admin-api/internal/admin/system/permission`
 - **Body（JSON）**：与创建接口相同，增加 `id` 字段
 - **成功返回**：`code=0`
 - **错误码**：`400`、`11019`
@@ -876,7 +876,7 @@
 
 ### 7. 删除权限
 - **Method**：DELETE
-- **Path**：`/go-api/internal/admin/system/permission`
+- **Path**：`/dudu-admin-api/internal/admin/system/permission`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -893,17 +893,17 @@
 ## 接口总览
 | 功能 | 方法 | 路径 |
 | ---- | ---- | ---- |
-| 菜单树列表 | GET | `/go-api/internal/admin/system/menu/list` |
-| 菜单详情 | GET | `/go-api/internal/admin/system/menu` |
-| 创建菜单 | POST | `/go-api/internal/admin/system/menu` |
-| 更新菜单 | PUT | `/go-api/internal/admin/system/menu` |
-| 删除菜单 | DELETE | `/go-api/internal/admin/system/menu` |
+| 菜单树列表 | GET | `/dudu-admin-api/internal/admin/system/menu/list` |
+| 菜单详情 | GET | `/dudu-admin-api/internal/admin/system/menu` |
+| 创建菜单 | POST | `/dudu-admin-api/internal/admin/system/menu` |
+| 更新菜单 | PUT | `/dudu-admin-api/internal/admin/system/menu` |
+| 删除菜单 | DELETE | `/dudu-admin-api/internal/admin/system/menu` |
 
 ---
 
 ### 1. 菜单树列表
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/menu/list`
+- **Path**：`/dudu-admin-api/internal/admin/system/menu/list`
 - **说明**：返回树形结构的菜单列表
 
 - **响应结构**：
@@ -957,7 +957,7 @@
 
 ### 2. 菜单详情
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/menu`
+- **Path**：`/dudu-admin-api/internal/admin/system/menu`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -971,7 +971,7 @@
 
 ### 3. 创建菜单
 - **Method**：POST
-- **Path**：`/go-api/internal/admin/system/menu`
+- **Path**：`/dudu-admin-api/internal/admin/system/menu`
 - **Body（JSON）**：
   ```json
   {
@@ -999,7 +999,7 @@
 
 ### 4. 更新菜单
 - **Method**：PUT
-- **Path**：`/go-api/internal/admin/system/menu`
+- **Path**：`/dudu-admin-api/internal/admin/system/menu`
 - **Body（JSON）**：
   ```json
   {
@@ -1029,7 +1029,7 @@
 
 ### 5. 删除菜单
 - **Method**：DELETE
-- **Path**：`/go-api/internal/admin/system/menu`
+- **Path**：`/dudu-admin-api/internal/admin/system/menu`
 - **Query 参数**：
 
   | 名称 | 类型 | 必填 | 说明 |
@@ -1048,14 +1048,14 @@
 ## 接口总览
 | 功能 | 方法 | 路径 |
 | ---- | ---- | ---- |
-| 分页查询操作记录 | GET | `/go-api/internal/admin/system/record/paginate` |
-| 操作记录详情 | GET | `/go-api/internal/admin/system/record/detail` |
+| 分页查询操作记录 | GET | `/dudu-admin-api/internal/admin/system/record/paginate` |
+| 操作记录详情 | GET | `/dudu-admin-api/internal/admin/system/record/detail` |
 
 ---
 
 ### 1. 分页查询操作记录
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/record/paginate`
+- **Path**：`/dudu-admin-api/internal/admin/system/record/paginate`
 - **说明**：查询系统操作日志记录（存储于 `sys_operation_record`，用户名通过 `user_id` 关联 `sys_user.user_name`）
 - **Query 参数**：
 
@@ -1095,7 +1095,7 @@
         {
           "ID": 1024,
           "Method": "POST",
-          "Path": "/go-api/internal/admin/system/user",
+          "Path": "/dudu-admin-api/internal/admin/system/user",
           "IP": "192.168.1.100",
           "Status": 0,
           "UserName": "admin",
@@ -1112,7 +1112,7 @@
 
 ### 2. 操作记录详情
 - **Method**：GET
-- **Path**：`/go-api/internal/admin/system/record/detail`
+- **Path**：`/dudu-admin-api/internal/admin/system/record/detail`
 - **说明**：根据操作记录 ID 获取完整日志详情
 - **Query 参数**：
 

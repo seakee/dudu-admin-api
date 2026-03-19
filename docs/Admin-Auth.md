@@ -9,12 +9,12 @@ This document is based on the current implementation and covers the full behavio
 ## 1. Basic Information
 
 ### 1.1 Route Prefixes
-- `app/http/router/handler.go`: registers `/go-api`
+- `app/http/router/handler.go`: registers `/dudu-admin-api`
 - `app/http/router/internal/handler.go`: registers `/internal`
-- `app/http/router/internal/admin/handler.go`: registers `/admin` (with `SaveOperationRecord`)
+- `app/http/router/internal/admin/handler.go`: registers `/admin` (`SaveOperationRecord` is mounted on `/admin/system`)
 - `app/http/router/internal/admin/auth/handler.go`: registers `/auth`
 
-The full business route prefix for the auth module is `/go-api/internal/admin/auth`.
+The full business route prefix for the auth module is `/dudu-admin-api/internal/admin/auth`.
 
 ### 1.2 Route Overview (matches `auth.go`)
 | Function | Method | Path | Protected by `CheckAdminAuth` |
@@ -66,26 +66,26 @@ The full business route prefix for the auth module is `/go-api/internal/admin/au
 ```mermaid
 sequenceDiagram
   participant C as Client
-  participant OR as SaveOperationRecord
+  participant RL as AdminAuthRateLimit
   participant MA as CheckAdminAuth
   participant H as AdminAuth Handler
   participant S as AuthService
   participant R as Repository/Redis
 
-  C->>OR: Request /go-api/internal/admin/auth/*
-  OR->>MA: Enter auth middleware (protected routes only)
+  C->>RL: Request /dudu-admin-api/internal/admin/auth/*
+  RL->>MA: Enter auth middleware (protected routes only)
   MA->>S: VerifyToken + HasRole/HasPermission
   MA-->>H: On success, inject user_id/user_name
   H->>S: Business method
   S->>R: DB/Redis/external OAuth
   R-->>S: Return data
   S-->>H: errCode + data
-  H-->>OR: Standard JSON response
-  OR-->>C: Return response and record operation log
+  H-->>C: Standard JSON response
 ```
 
 ### 2.2 Public Endpoints
-`/oauth/url`, `/token`, `/passkey/login/options`, `/passkey/login/finish`, `/reauth`, `/oauth/bind/confirm`, and `/password/reset` skip `CheckAdminAuth`, but still pass through `SaveOperationRecord`.
+`/oauth/url`, `/token`, `/passkey/login/options`, `/passkey/login/finish`, `/reauth`, `/oauth/bind/confirm`, and `/password/reset` skip `CheckAdminAuth`.
+These public routes are still subject to route-level rate limiting where configured.
 
 ## 3. Auth and Permission Model
 
@@ -487,7 +487,7 @@ Additional notes:
 
 ## 6.1 Get OAuth Login URL
 - **Method**: GET
-- **Path**: `/go-api/internal/admin/auth/oauth/url`
+- **Path**: `/dudu-admin-api/internal/admin/auth/oauth/url`
 - **Auth**: No
 - **Query**:
 
@@ -503,7 +503,7 @@ Additional notes:
 
 ## 6.2 Exchange Login Token
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/token`
+- **Path**: `/dudu-admin-api/internal/admin/auth/token`
 - **Auth**: No
 - **Body**: `AuthParam`
 - **Response**: `AccessToken`
@@ -532,7 +532,7 @@ Additional notes:
 
 ## 6.3 Get Current User Profile
 - **Method**: GET
-- **Path**: `/go-api/internal/admin/auth/profile`
+- **Path**: `/dudu-admin-api/internal/admin/auth/profile`
 - **Auth**: Yes
 - **Response**:
   ```json
@@ -559,7 +559,7 @@ Additional notes:
 
 ## 6.4 Reset Password (safe code)
 - **Method**: PUT
-- **Path**: `/go-api/internal/admin/auth/password/reset`
+- **Path**: `/dudu-admin-api/internal/admin/auth/password/reset`
 - **Auth**: No
 - **Body**:
 
@@ -574,7 +574,7 @@ Additional notes:
 
 ## 6.5 Change Password
 - **Method**: PUT
-- **Path**: `/go-api/internal/admin/auth/password`
+- **Path**: `/dudu-admin-api/internal/admin/auth/password`
 - **Auth**: Yes
 - **Body**:
 
@@ -593,7 +593,7 @@ Additional notes:
 
 ## 6.6 Update Profile
 - **Method**: PUT
-- **Path**: `/go-api/internal/admin/auth/profile`
+- **Path**: `/dudu-admin-api/internal/admin/auth/profile`
 - **Auth**: Yes
 - **Body**:
 
@@ -609,7 +609,7 @@ Additional notes:
 
 ## 6.7 Get User Menus
 - **Method**: GET
-- **Path**: `/go-api/internal/admin/auth/menus`
+- **Path**: `/dudu-admin-api/internal/admin/auth/menus`
 - **Auth**: Yes
 - **Response**: `data.items` (see the menu tree structure in 4.6)
 - **Permission logic**:
@@ -621,7 +621,7 @@ Additional notes:
 
 ## 6.8 Change Login Identifier
 - **Method**: PUT
-- **Path**: `/go-api/internal/admin/auth/identifier`
+- **Path**: `/dudu-admin-api/internal/admin/auth/identifier`
 - **Auth**: Yes
 - **Body**:
 
@@ -643,7 +643,7 @@ Additional notes:
 
 ## 6.9 Local Account Re-authentication
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/reauth`
+- **Path**: `/dudu-admin-api/internal/admin/auth/reauth`
 - **Auth**: No
 - **Body**:
 
@@ -698,7 +698,7 @@ Additional notes:
 
 ### 6.9.1 Get Sensitive-Operation Verification Methods
 - **Method**: GET
-- **Path**: `/go-api/internal/admin/auth/reauth/methods`
+- **Path**: `/dudu-admin-api/internal/admin/auth/reauth/methods`
 - **Auth**: Yes
 - **Successful response**:
   - `default_method`: `passkey` / `password`
@@ -709,7 +709,7 @@ Additional notes:
 
 ### 6.9.2 Verify Sensitive Operation with Password
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/reauth/password`
+- **Path**: `/dudu-admin-api/internal/admin/auth/reauth/password`
 - **Auth**: Yes
 - **Body**:
 
@@ -723,7 +723,7 @@ Additional notes:
 
 ### 6.9.3 Verify Sensitive Operation with TOTP
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/reauth/totp`
+- **Path**: `/dudu-admin-api/internal/admin/auth/reauth/totp`
 - **Auth**: Yes
 - **Body**:
 
@@ -741,13 +741,13 @@ Additional notes:
 
 ### 6.9.4 Get Passkey Verification Options for Sensitive Operations
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/reauth/passkey/options`
+- **Path**: `/dudu-admin-api/internal/admin/auth/reauth/passkey/options`
 - **Auth**: Yes
 - **Response**: `PasskeyOptionsResult`
 
 ### 6.9.5 Finish Passkey Verification for Sensitive Operations
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/reauth/passkey/finish`
+- **Path**: `/dudu-admin-api/internal/admin/auth/reauth/passkey/finish`
 - **Auth**: Yes
 - **Body**:
 
@@ -767,7 +767,7 @@ Additional notes:
 
 ## 6.10 Confirm Third-Party Binding
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/oauth/bind/confirm`
+- **Path**: `/dudu-admin-api/internal/admin/auth/oauth/bind/confirm`
 - **Auth**: No
 - **Body**:
 
@@ -809,7 +809,7 @@ Additional notes:
 
 ## 6.11 List Bound Third-Party Accounts
 - **Method**: GET
-- **Path**: `/go-api/internal/admin/auth/oauth/accounts`
+- **Path**: `/dudu-admin-api/internal/admin/auth/oauth/accounts`
 - **Auth**: Yes
 - **Response**: `data.list[]`
 
@@ -829,7 +829,7 @@ Additional notes:
 
 ## 6.12 Unbind Third-Party Account
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/oauth/unbind`
+- **Path**: `/dudu-admin-api/internal/admin/auth/oauth/unbind`
 - **Auth**: Yes
 - **Body**:
 
@@ -857,7 +857,7 @@ Additional notes:
 
 ## 6.13 Get Passkey Login Options
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/passkey/login/options`
+- **Path**: `/dudu-admin-api/internal/admin/auth/passkey/login/options`
 - **Auth**: No
 - **Response**: `PasskeyOptionsResult`
 - **Notes**:
@@ -870,7 +870,7 @@ Additional notes:
 
 ## 6.14 Finish Passkey Login
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/passkey/login/finish`
+- **Path**: `/dudu-admin-api/internal/admin/auth/passkey/login/finish`
 - **Auth**: No
 - **Body**:
 
@@ -886,7 +886,7 @@ Additional notes:
 
 ## 6.15 Get Passkey Registration Options
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/passkey/register/options`
+- **Path**: `/dudu-admin-api/internal/admin/auth/passkey/register/options`
 - **Auth**: Yes
 - **Body**:
 
@@ -905,7 +905,7 @@ Additional notes:
 
 ## 6.16 Finish Passkey Registration
 - **Method**: POST
-- **Path**: `/go-api/internal/admin/auth/passkey/register/finish`
+- **Path**: `/dudu-admin-api/internal/admin/auth/passkey/register/finish`
 - **Auth**: Yes
 - **Body**:
 
@@ -921,7 +921,7 @@ Additional notes:
 
 ## 6.17 List Current User's Passkeys
 - **Method**: GET
-- **Path**: `/go-api/internal/admin/auth/passkeys`
+- **Path**: `/dudu-admin-api/internal/admin/auth/passkeys`
 - **Auth**: Yes
 - **Response**: `data.list[]`
 
@@ -940,7 +940,7 @@ Additional notes:
 
 ## 6.18 Delete Current User's Passkey
 - **Method**: DELETE
-- **Path**: `/go-api/internal/admin/auth/passkey`
+- **Path**: `/dudu-admin-api/internal/admin/auth/passkey`
 - **Auth**: Yes
 - **Body**:
 
@@ -961,7 +961,7 @@ Additional notes:
 
 ## 6.19 Enable TFA
 - **Method**: PUT
-- **Path**: `/go-api/internal/admin/auth/tfa/enable`
+- **Path**: `/dudu-admin-api/internal/admin/auth/tfa/enable`
 - **Auth**: Yes
 - **Body**:
 
@@ -977,7 +977,7 @@ Additional notes:
 
 ## 6.20 Disable TFA
 - **Method**: PUT
-- **Path**: `/go-api/internal/admin/auth/tfa/disable`
+- **Path**: `/dudu-admin-api/internal/admin/auth/tfa/disable`
 - **Auth**: Yes
 - **Body**:
 
@@ -991,7 +991,7 @@ Additional notes:
 
 ## 6.21 Get TOTP Key
 - **Method**: GET
-- **Path**: `/go-api/internal/admin/auth/tfa/key`
+- **Path**: `/dudu-admin-api/internal/admin/auth/tfa/key`
 - **Auth**: Yes
 - **Response**:
 
@@ -1006,7 +1006,7 @@ Additional notes:
 
 ## 6.22 Get TFA Status
 - **Method**: GET
-- **Path**: `/go-api/internal/admin/auth/tfa/status`
+- **Path**: `/dudu-admin-api/internal/admin/auth/tfa/status`
 - **Auth**: Yes
 - **Response**:
 
