@@ -17,5 +17,5 @@ go.work
 bin/configs/local.json
 
 # Build output
-/bin/go-api
+/bin/dudu-admin-api
 /.lingma/

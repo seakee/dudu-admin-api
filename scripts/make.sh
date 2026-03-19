@@ -10,6 +10,7 @@ RUN_ENV=${RUN_ENV:-local}
 # Default target that includes formatting, linting, testing, and building
 all() {
   fmt
+  test
   build
 }
 
@@ -28,6 +29,12 @@ build() {
   go build -ldflags="-s -w" -o ./bin/$APP_NAME ./main.go  # Build the Go binary
 }
 
+# Run tests
+test() {
+  echo "Running tests..."
+  go test -v ./...  # Run tests with verbose output
+}
+
 # Run the application
 run() {
   echo "Running application..."
@@ -37,7 +44,6 @@ run() {
 # Build the Docker image
 docker_build() {
   echo "Building Docker image..."
-  docker build -t $IMAGE_NAME .
   docker build --build-arg TZ=$TZ -t $IMAGE_NAME .
 }
 
@@ -79,6 +85,9 @@ case "$1" in
   build)
     build
     ;;
+  test)
+    test
+    ;;
   run)
     run
     ;;
@@ -95,8 +104,7 @@ case "$1" in
     clean
     ;;
   *)
-    echo "Usage: $0 {all|fmt|build|run|docker-build|docker-run|docker-clean|clean}"
+    echo "Usage: $0 {all|fmt|test|build|run|docker-build|docker-run|docker-clean|clean}"
     exit 1
     ;;
 esac
-

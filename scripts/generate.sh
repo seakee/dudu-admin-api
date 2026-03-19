@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-# Generate a go-api project
-# This script creates a new project based on the go-api template
+# Generate a dudu-admin-api project
+# This script creates a new project based on the dudu-admin-api template
 #
 # Usage:
 #   ./generate.sh [project-name] [version] [module-name]
 #   ./generate.sh my-project v1.0.0 github.com/myuser/my-project
 #   ./generate.sh my-project main my-project
 #   ./generate.sh my-project        # Uses latest main branch, module name = project name
-#   ./generate.sh                   # Creates 'go-api' project from main branch
+#   ./generate.sh                   # Creates 'dudu-admin-api' project from main branch
 #
 # Parameters:
-#   $1 - Project name (optional, default: "go-api")
+#   $1 - Project name (optional, default: "dudu-admin-api")
 #   $2 - Version/branch (optional, default: "main")
 #   $3 - Module name (optional, default: project-name)
 
@@ -57,12 +57,12 @@ show_usage() {
     echo "Usage: $0 [project-name] [version] [module-name]"
     echo ""
     echo "Parameters:"
-    echo "  project-name  Name of the new project (default: go-api)"
+    echo "  project-name  Name of the new project (default: dudu-admin-api)"
     echo "  version       Git branch or tag to use (default: main)"
     echo "  module-name   Go module name (default: project-name)"
     echo ""
     echo "Examples:"
-    echo "  $0                                              # Create 'go-api' from main"
+    echo "  $0                                              # Create 'dudu-admin-api' from main"
     echo "  $0 my-awesome-api                               # Module: my-awesome-api"
     echo "  $0 my-api v1.2.0                                # Module: my-api"
     echo "  $0 my-api main github.com/myuser/my-api         # Custom module name"
@@ -473,7 +473,7 @@ if [[ $# -gt 0 && ("$1" == "-h" || "$1" == "--help") ]]; then
 fi
 
 # Set default values
-projectName="go-api"
+projectName="dudu-admin-api"
 projectVersion="main"
 
 # Parse arguments with better validation
@@ -538,7 +538,7 @@ if [[ -d "$projectDir" ]]; then
     rm -rf "$projectDir"
 fi
 
-print_info "Cloning go-api repository..."
+print_info "Cloning dudu-admin-api repository..."
 
 # Clone with enhanced error handling
 if ! clone_repository "https://github.com/seakee/dudu-admin-api.git" "$projectVersion" "$projectDir"; then
@@ -594,7 +594,7 @@ cleanup_git_references() {
         cat > "$readme_file" << EOF
 # $projectName
 
-A high-performance Go API project based on the go-api framework. Built for rapid development of scalable backend services with enterprise-grade features.
+A high-performance Go API project based on the dudu-admin-api framework. Built for rapid development of scalable backend services with enterprise-grade features.
 
 ## Description
 
@@ -826,7 +826,7 @@ If you encounter any issues or have questions:
 
 ## Acknowledgments
 
-- Built with [go-api](https://github.com/seakee/dudu-admin-api) framework
+- Built with [dudu-admin-api](https://github.com/seakee/dudu-admin-api) framework
 - Powered by [Gin](https://gin-gonic.com/) web framework
 - Database integration with [GORM](https://gorm.io/)
 - Logging with [Zap](https://go.uber.org/zap)
@@ -851,16 +851,16 @@ EOF
 # Clean up git references before processing
 cleanup_git_references "$projectDir" "$moduleName"
 
-# Only replace if project name is different from 'go-api'
-if [[ "$projectName" != "go-api" ]]; then
+# Only replace if project name is different from 'dudu-admin-api'
+if [[ "$projectName" != "dudu-admin-api" ]]; then
     print_info "Updating import paths and project references..."
 
-    # Use the simplified approach - replace 'go-api' with new project name
-    replace_in_files_cross_platform "go-api" "$projectName" "$projectDir"
+    # Use the simplified approach - replace 'dudu-admin-api' with new project name
+    replace_in_files_cross_platform "dudu-admin-api" "$projectName" "$projectDir"
 
     print_success "Project references updated."
 else
-    print_info "Project name is 'go-api', skipping replacements."
+    print_info "Project name is 'dudu-admin-api', skipping replacements."
 fi
 
 # Initialize new git repository with better error handling
@@ -886,7 +886,7 @@ if ! git add .; then
     exit 1
 fi
 
-if ! git commit -m "Initial commit: Created $projectName from go-api template"; then
+if ! git commit -m "Initial commit: Created $projectName from dudu-admin-api template"; then
     print_error "Failed to create initial commit"
     exit 1
 fi
@@ -894,7 +894,7 @@ fi
 print_success "Git repository initialized successfully."
 
 # Handle Go module operations
-if [[ "$projectName" != "go-api" || "$moduleName" != "go-api" ]]; then
+if [[ "$projectName" != "dudu-admin-api" || "$moduleName" != "dudu-admin-api" ]]; then
     print_info "Cleaning up Go module dependencies..."
 
     # Check if go.mod exists

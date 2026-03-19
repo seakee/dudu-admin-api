@@ -18,7 +18,7 @@ RUN go mod download
 COPY . .
 
 # Build the project in the /build directory
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /build/go-api ./main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /build/dudu-admin-api ./main.go
 
 # Use a pinned Alpine major/minor version to avoid drifting with :latest
 FROM alpine:3.21
@@ -39,7 +39,7 @@ RUN apk add --no-cache tzdata && \
     echo $TZ > /etc/timezone
 
 # Copy the compiled binary file into the /bin directory of the runtime image
-COPY --from=builder /build/go-api ./bin
+COPY --from=builder /build/dudu-admin-api ./bin
 
 # Copy /bin/lang directory from the builder stage to /bin/lang in the runtime image
 COPY --from=builder /build/bin/lang ./bin/lang
@@ -51,4 +51,4 @@ VOLUME ["/bin/configs", "/bin/logs"]
 EXPOSE 8080
 
 # Set the default command to run when the container starts
-ENTRYPOINT ["./bin/go-api"]
+ENTRYPOINT ["./bin/dudu-admin-api"]
