@@ -6,6 +6,8 @@
 package router
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/seakee/dudu-admin-api/app/http"
 	"github.com/seakee/dudu-admin-api/app/http/router/external"
@@ -15,12 +17,17 @@ import (
 func Register(engine *gin.Engine, ctx *http.Context) {
 	ctx.Engine = engine
 
-	routePrefix := "go-api"
-	if ctx != nil && ctx.Config != nil && ctx.Config.System.RoutePrefix != "" {
-		routePrefix = ctx.Config.System.RoutePrefix
+	apiPrefix := ""
+	if ctx != nil && ctx.Config != nil {
+		apiPrefix = strings.Trim(ctx.Config.System.RoutePrefix, "/")
+		if apiPrefix == "" {
+			apiPrefix = strings.Trim(ctx.Config.System.APIPrefix, "/")
+		}
 	}
-
-	api := engine.Group(routePrefix)
+	if apiPrefix == "" {
+		apiPrefix = "go-api"
+	}
+	api := engine.Group(apiPrefix)
 
 	// Set up internal API routes
 	internalAPI := api.Group("internal")

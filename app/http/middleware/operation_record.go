@@ -201,25 +201,28 @@ func formatSanitizedPayload(payload any) string {
 }
 
 func shouldOmitOperationPayload(path string) bool {
-	switch path {
-	case "/go-api/internal/admin/auth/token",
-		"/go-api/internal/admin/auth/password/reset",
-		"/go-api/internal/admin/auth/password",
-		"/go-api/internal/admin/auth/identifier",
-		"/go-api/internal/admin/auth/reauth/password",
-		"/go-api/internal/admin/auth/reauth/totp",
-		"/go-api/internal/admin/auth/oauth/bind/confirm",
-		"/go-api/internal/admin/auth/passkey/register/finish",
-		"/go-api/internal/admin/auth/passkey/login/finish",
-		"/go-api/internal/admin/auth/reauth/passkey/finish",
-		"/go-api/internal/admin/auth/tfa/enable",
-		"/go-api/internal/admin/auth/tfa/disable",
-		"/go-api/internal/admin/system/user/password/reset",
-		"/go-api/internal/admin/system/user/tfa/disable",
-		"/go-api/internal/admin/system/user/passkey",
-		"/go-api/internal/admin/system/user/passkeys":
-		return true
-	default:
-		return false
+	sensitivePathSuffixes := []string{
+		"/internal/admin/auth/token",
+		"/internal/admin/auth/password/reset",
+		"/internal/admin/auth/password",
+		"/internal/admin/auth/identifier",
+		"/internal/admin/auth/reauth/password",
+		"/internal/admin/auth/reauth/totp",
+		"/internal/admin/auth/oauth/bind/confirm",
+		"/internal/admin/auth/passkey/register/finish",
+		"/internal/admin/auth/passkey/login/finish",
+		"/internal/admin/auth/reauth/passkey/finish",
+		"/internal/admin/auth/tfa/enable",
+		"/internal/admin/auth/tfa/disable",
+		"/internal/admin/system/user/password/reset",
+		"/internal/admin/system/user/tfa/disable",
+		"/internal/admin/system/user/passkey",
+		"/internal/admin/system/user/passkeys",
 	}
+	for _, suffix := range sensitivePathSuffixes {
+		if strings.HasSuffix(path, suffix) {
+			return true
+		}
+	}
+	return false
 }

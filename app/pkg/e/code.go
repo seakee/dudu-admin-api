@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-// Package e defines error codes and messages used throughout the go-api project.
+// Package e defines error codes and messages used throughout the dudu-admin-api project.
 // These codes help standardize error handling and client-side error interpretation.
 package e
 

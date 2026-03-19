@@ -57,7 +57,7 @@ func (p permissionService) Available(ctx context.Context) (map[string][]string, 
 	// Iterate through all routes defined in the service
 	for _, route := range p.routes() {
 		// Skip non-admin API routes
-		if !strings.HasPrefix(route.Path, "/go-api/internal/admin") || strings.HasSuffix(route.Path, "ping") {
+		if !isAdminRoutePath(route.Path) || strings.HasSuffix(route.Path, "ping") {
 			continue
 		}
 
@@ -83,6 +83,10 @@ func (p permissionService) Available(ctx context.Context) (map[string][]string, 
 
 	// Return the map of available routes
 	return aRoutes, nil
+}
+
+func isAdminRoutePath(path string) bool {
+	return strings.Contains(path, "/internal/admin/")
 }
 
 func (p permissionService) Create(ctx context.Context, permission *system.Permission) (errCode int, err error) {
