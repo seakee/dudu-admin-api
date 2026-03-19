@@ -20,12 +20,12 @@ func TestAdminAuthRateLimit_DisabledPassThrough(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	r.Use(middleware{}.AdminAuthRateLimit())
-	r.POST("/go-api/internal/admin/auth/token", func(c *gin.Context) {
+	r.POST("/dudu-admin-api/internal/admin/auth/token", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)
 	})
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/go-api/internal/admin/auth/token", nil)
+	req := httptest.NewRequest(http.MethodPost, "/dudu-admin-api/internal/admin/auth/token", nil)
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusNoContent {
@@ -39,12 +39,12 @@ func TestAdminAuthRateLimit_EnabledWithoutRedisPassThrough(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	r.Use(middleware{}.AdminAuthRateLimit())
-	r.POST("/go-api/internal/admin/auth/token", func(c *gin.Context) {
+	r.POST("/dudu-admin-api/internal/admin/auth/token", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)
 	})
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/go-api/internal/admin/auth/token", nil)
+	req := httptest.NewRequest(http.MethodPost, "/dudu-admin-api/internal/admin/auth/token", nil)
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusNoContent {
@@ -78,13 +78,13 @@ func TestAdminAuthRateLimit_ThrottleAfterLimit(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	r.Use(middleware{redis: map[string]*redis.Manager{"dudu-admin-api": manager}}.AdminAuthRateLimit())
-	r.POST("/go-api/internal/admin/auth/token", func(c *gin.Context) {
+	r.POST("/dudu-admin-api/internal/admin/auth/token", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)
 	})
 
 	for i := 1; i <= 20; i++ {
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodPost, "/go-api/internal/admin/auth/token", nil)
+		req := httptest.NewRequest(http.MethodPost, "/dudu-admin-api/internal/admin/auth/token", nil)
 		req.RemoteAddr = "192.0.2.10:12345"
 		r.ServeHTTP(w, req)
 		if w.Code != http.StatusNoContent {
@@ -93,7 +93,7 @@ func TestAdminAuthRateLimit_ThrottleAfterLimit(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/go-api/internal/admin/auth/token", nil)
+	req := httptest.NewRequest(http.MethodPost, "/dudu-admin-api/internal/admin/auth/token", nil)
 	req.RemoteAddr = "192.0.2.10:12345"
 	r.ServeHTTP(w, req)
 
@@ -107,8 +107,8 @@ func TestAdminAuthRateLimit_ThrottleAfterLimit(t *testing.T) {
 		t.Fatalf("receivedTTL = %d, want 60", receivedTTL)
 	}
 	// LuaWithContext 不自动加前缀，key 中包含 manager.Prefix（此处为空字符串）
-	if receivedKey != "admin:auth:rate-limit:/go-api/internal/admin/auth/token:192.0.2.10" {
-		t.Fatalf("receivedKey = %s, want %s", receivedKey, "admin:auth:rate-limit:/go-api/internal/admin/auth/token:192.0.2.10")
+	if receivedKey != "admin:auth:rate-limit:/dudu-admin-api/internal/admin/auth/token:192.0.2.10" {
+		t.Fatalf("receivedKey = %s, want %s", receivedKey, "admin:auth:rate-limit:/dudu-admin-api/internal/admin/auth/token:192.0.2.10")
 	}
 }
 
@@ -131,20 +131,20 @@ func TestAdminAuthRateLimit_PasskeyLoginPath(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	r.Use(middleware{redis: map[string]*redis.Manager{"dudu-admin-api": manager}}.AdminAuthRateLimit())
-	r.POST("/go-api/internal/admin/auth/passkey/login/options", func(c *gin.Context) {
+	r.POST("/dudu-admin-api/internal/admin/auth/passkey/login/options", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)
 	})
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/go-api/internal/admin/auth/passkey/login/options", nil)
+	req := httptest.NewRequest(http.MethodPost, "/dudu-admin-api/internal/admin/auth/passkey/login/options", nil)
 	req.RemoteAddr = "192.0.2.10:12345"
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusNoContent {
 		t.Fatalf("status = %d, want %d", w.Code, http.StatusNoContent)
 	}
-	if receivedKey != "admin:auth:rate-limit:/go-api/internal/admin/auth/passkey/login/options:192.0.2.10" {
-		t.Fatalf("receivedKey = %s, want %s", receivedKey, "admin:auth:rate-limit:/go-api/internal/admin/auth/passkey/login/options:192.0.2.10")
+	if receivedKey != "admin:auth:rate-limit:/dudu-admin-api/internal/admin/auth/passkey/login/options:192.0.2.10" {
+		t.Fatalf("receivedKey = %s, want %s", receivedKey, "admin:auth:rate-limit:/dudu-admin-api/internal/admin/auth/passkey/login/options:192.0.2.10")
 	}
 }
 

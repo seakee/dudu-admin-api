@@ -84,7 +84,7 @@ func TestOperationRecordService_Detail(t *testing.T) {
 			mockRecord: &repo.OperationRecordDetail{
 				Record: &system.OperationRecord{
 					Model:  gorm.Model{ID: 1},
-					Path:   "/go-api/internal/admin/system/user",
+					Path:   "/dudu-admin-api/internal/admin/system/user",
 					UserID: 2,
 				},
 				Params: map[string]interface{}{"id": float64(1)},
