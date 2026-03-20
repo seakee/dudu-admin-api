@@ -5,16 +5,34 @@
 package codegen
 
 import (
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
 	"testing"
 )
+
+func assertGeneratedModelCodeFormats(t *testing.T, m *Model, code string) {
+	t.Helper()
+
+	if _, err := m.formatGoCode(code); err != nil {
+		t.Fatalf("generated model code is not valid Go: %v\n%s", err, code)
+	}
+}
 
 // TestModel_Generate tests the complete model generation process
 func TestModel_Generate(t *testing.T) {
 	m := NewModel()
+	outputDir := t.TempDir()
 
-	err := m.Generate(false, "../../../bin/data/sql/auth_app.sql", "")
+	err := m.Generate(true, "../../../bin/data/sql/mysql/auth_app.sql", outputDir)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	generatedPath := filepath.Join(outputDir, "auth", "app.go")
+	if _, err := os.Stat(generatedPath); err != nil {
+		t.Fatalf("generated file missing: %v", err)
 	}
 }
 
@@ -27,7 +45,10 @@ func TestModel_parseSQL(t *testing.T) {
 		id int NOT NULL AUTO_INCREMENT COMMENT 'id',
 		app_id varchar(30) NOT NULL COMMENT '应用ID',
 		app_name varchar(50) DEFAULT NULL COMMENT '应用名称',
-		status tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态'
+		status tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态',
+		created_at timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+		updated_at timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+		deleted_at timestamp NULL DEFAULT NULL
 	);`
 
 	err := m.parseSQL(sqlContent)
@@ -37,6 +58,10 @@ func TestModel_parseSQL(t *testing.T) {
 
 	if m.TableName != "auth_app" {
 		t.Errorf("TableName = %v, want auth_app", m.TableName)
+	}
+
+	if !m.UseGormModel {
+		t.Error("expected auth_app to embed gorm.Model")
 	}
 
 	// Debug: print all parsed fields
@@ -51,31 +76,30 @@ func TestModel_parseSQL(t *testing.T) {
 		t.Error("No fields were parsed")
 	}
 
-	// Test that we have the expected fields (id is skipped by design)
+	// Test that we have the expected fields.
 	if len(m.TableFields) > 0 {
-		// First field should be app_id
-		appIdField := m.TableFields[0]
+		appIdField := m.TableFields[1]
 		if appIdField.Name != "AppId" {
-			t.Errorf("First field name = %v, want AppId", appIdField.Name)
+			t.Errorf("AppId field name = %v, want AppId", appIdField.Name)
 		}
 		if appIdField.Type != "string" {
-			t.Errorf("First field type = %v, want string", appIdField.Type)
+			t.Errorf("AppId field type = %v, want string", appIdField.Type)
 		}
 		if appIdField.IsNullable {
 			t.Errorf("AppId field should not be nullable")
 		}
 	}
 
-	// Test that we have at least 3 fields (app_id, app_name, status)
-	if len(m.TableFields) < 3 {
-		t.Errorf("Expected at least 3 fields, got %d", len(m.TableFields))
+	// Standard GORM fields are parsed, then filtered at template time.
+	if len(m.TableFields) < 4 {
+		t.Errorf("Expected parsed fields to include standard columns, got %d", len(m.TableFields))
 	}
 
 	// Test status field properties
-	if len(m.TableFields) >= 3 {
-		statusField := m.TableFields[2] // status is the 3rd field
+	if len(m.TableFields) >= 4 {
+		statusField := m.TableFields[3]
 		if statusField.Name != "Status" {
-			t.Errorf("Third field name = %v, want Status", statusField.Name)
+			t.Errorf("Status field name = %v, want Status", statusField.Name)
 		}
 		if statusField.Type != "int8" {
 			t.Errorf("Status field type = %v, want int8", statusField.Type)
@@ -86,6 +110,37 @@ func TestModel_parseSQL(t *testing.T) {
 		if statusField.DefaultValue != "0" {
 			t.Errorf("Status field default value = %v, want 0", statusField.DefaultValue)
 		}
+	}
+}
+
+func TestModel_parseSQLWithoutStandardFields(t *testing.T) {
+	m := NewModel()
+
+	sqlContent := `CREATE TABLE custom_job (
+		id bigint NOT NULL AUTO_INCREMENT COMMENT 'id',
+		name varchar(64) DEFAULT NULL COMMENT 'name',
+		run_at timestamp NULL DEFAULT NULL COMMENT 'run time'
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	if m.UseGormModel {
+		t.Fatal("custom_job should not embed gorm.Model")
+	}
+
+	fields := m.templateFields()
+	if len(fields) != 3 {
+		t.Fatalf("expected 3 template fields, got %d", len(fields))
+	}
+
+	if fields[1].Type != "*string" {
+		t.Fatalf("nullable varchar should map to *string, got %s", fields[1].Type)
+	}
+
+	if fields[2].Type != "*time.Time" {
+		t.Fatalf("nullable timestamp should map to *time.Time, got %s", fields[2].Type)
 	}
 }
 
@@ -143,6 +198,17 @@ func TestModel_generateGormTag(t *testing.T) {
 			},
 			typeStr:  "tinyint(1)",
 			expected: "column:status;not null;default:0",
+		},
+		{
+			name: "field with null default skips tag",
+			field: Field{
+				Name:       "AppName",
+				JsonName:   "app_name",
+				Size:       50,
+				IsNullable: true,
+			},
+			typeStr:  "varchar(50)",
+			expected: "column:app_name;type:varchar(50)",
 		},
 		{
 			name: "nullable field",
@@ -262,7 +328,7 @@ func TestModel_extractDefaultValue(t *testing.T) {
 		expected string
 	}{
 		{"string default", "status tinyint(1) DEFAULT '0'", "0"},
-		{"null default", "name varchar(50) DEFAULT NULL", "NULL"},
+		{"null default", "name varchar(50) DEFAULT NULL", ""},
 		{"current timestamp", "created_at timestamp DEFAULT CURRENT_TIMESTAMP", "CURRENT_TIMESTAMP"},
 		{"no default", "id int NOT NULL", ""},
 		{"numeric default", "count int DEFAULT 100", "100"},
@@ -286,42 +352,511 @@ func TestModel_getGoType(t *testing.T) {
 		name       string
 		sqlType    string
 		isUnsigned bool
+		isNullable bool
 		expected   string
 	}{
-		{"int", "int", false, "int32"},
-		{"int unsigned", "int", true, "uint32"},
-		{"tinyint", "tinyint", false, "int8"},
-		{"tinyint unsigned", "tinyint", true, "uint8"},
-		{"smallint", "smallint", false, "int16"},
-		{"smallint unsigned", "smallint", true, "uint16"},
-		{"bigint", "bigint", false, "int64"},
-		{"bigint unsigned", "bigint", true, "uint64"},
-		{"varchar", "varchar", false, "string"},
-		{"text", "text", false, "string"},
-		{"tinytext", "tinytext", false, "string"},
-		{"mediumtext", "mediumtext", false, "string"},
-		{"longtext", "longtext", false, "string"},
-		{"decimal", "decimal", false, "decimal.Decimal"},
-		{"float", "float", false, "float32"},
-		{"double", "double", false, "float64"},
-		{"timestamp", "timestamp", false, "time.Time"},
-		{"datetime", "datetime", false, "time.Time"},
-		{"date", "date", false, "time.Time"},
-		{"time", "time", false, "time.Time"},
-		{"blob", "blob", false, "[]byte"},
-		{"tinyblob", "tinyblob", false, "[]byte"},
-		{"mediumblob", "mediumblob", false, "[]byte"},
-		{"longblob", "longblob", false, "[]byte"},
-		{"json", "json", false, "datatypes.JSON"},
-		{"unknown", "unknown", false, "any"},
+		{"int", "int", false, false, "int32"},
+		{"int unsigned", "int", true, false, "uint32"},
+		{"tinyint", "tinyint", false, false, "int8"},
+		{"tinyint unsigned", "tinyint", true, false, "uint8"},
+		{"smallint", "smallint", false, false, "int16"},
+		{"smallint unsigned", "smallint", true, false, "uint16"},
+		{"bigint", "bigint", false, false, "int64"},
+		{"bigint unsigned", "bigint", true, false, "uint64"},
+		{"nullable bigint", "bigint", false, true, "*int64"},
+		{"varchar", "varchar", false, false, "string"},
+		{"nullable varchar", "varchar", false, true, "*string"},
+		{"text", "text", false, false, "string"},
+		{"tinytext", "tinytext", false, false, "string"},
+		{"mediumtext", "mediumtext", false, false, "string"},
+		{"longtext", "longtext", false, false, "string"},
+		{"decimal", "decimal", false, false, "decimal.Decimal"},
+		{"nullable decimal", "decimal", false, true, "*decimal.Decimal"},
+		{"float", "float", false, false, "float32"},
+		{"double", "double", false, false, "float64"},
+		{"timestamp", "timestamp", false, false, "time.Time"},
+		{"nullable timestamp", "timestamp", false, true, "*time.Time"},
+		{"datetime", "datetime", false, false, "time.Time"},
+		{"date", "date", false, false, "time.Time"},
+		{"time", "time", false, false, "time.Time"},
+		{"blob", "blob", false, false, "[]byte"},
+		{"tinyblob", "tinyblob", false, false, "[]byte"},
+		{"mediumblob", "mediumblob", false, false, "[]byte"},
+		{"longblob", "longblob", false, false, "[]byte"},
+		{"json", "json", false, false, "datatypes.JSON"},
+		{"nullable json", "json", false, true, "*datatypes.JSON"},
+		{"unknown", "unknown", false, false, "any"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, _ := m.getGoType(tt.sqlType, tt.isUnsigned)
+			result, _ := m.getGoType(tt.sqlType, tt.isUnsigned, tt.isNullable)
 			if result != tt.expected {
 				t.Errorf("getGoType(%v, %v) = %v, want %v", tt.sqlType, tt.isUnsigned, result, tt.expected)
 			}
 		})
+	}
+}
+
+func TestModel_getGoTypePostgres(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+
+	tests := []struct {
+		name       string
+		sqlType    string
+		isNullable bool
+		expected   string
+	}{
+		{"serial", "serial", false, "int32"},
+		{"bigserial", "bigserial", false, "int64"},
+		{"uuid", "uuid", false, "string"},
+		{"jsonb", "jsonb", false, "datatypes.JSON"},
+		{"nullable timestamptz", "timestamptz", true, "*time.Time"},
+		{"double precision", "double precision", false, "float64"},
+		{"bytea", "bytea", false, "[]byte"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, _ := m.getGoType(tt.sqlType, false, tt.isNullable)
+			if result != tt.expected {
+				t.Fatalf("getGoType(%q) = %s, want %s", tt.sqlType, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestModel_generateCodeWithoutGormModel(t *testing.T) {
+	m := NewModel()
+	sqlContent := `CREATE TABLE job (
+		id bigint NOT NULL AUTO_INCREMENT COMMENT 'id',
+		name varchar(64) DEFAULT NULL COMMENT 'name'
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	code, err := m.generateCode()
+	if err != nil {
+		t.Fatalf("generateCode() error = %v", err)
+	}
+
+	if strings.Contains(code, "gorm.Model") {
+		t.Fatal("unexpected gorm.Model embed for partial standard table")
+	}
+
+	if !strings.Contains(code, "Id int64") {
+		t.Fatal("expected explicit ID field in generated code")
+	}
+}
+
+func TestModel_parseSQLPostgres(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE IF NOT EXISTS "public"."oauth_apps" (
+		"app_uuid" uuid PRIMARY KEY,
+		"name" varchar(80) NOT NULL,
+		"payload" jsonb,
+		"created_at" timestamp with time zone NULL
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	if m.SchemaName != "public" {
+		t.Fatalf("SchemaName = %s, want public", m.SchemaName)
+	}
+	if m.TableName != "oauth_apps" {
+		t.Fatalf("TableName = %s, want oauth_apps", m.TableName)
+	}
+	if m.PrimaryKeyName != "app_uuid" {
+		t.Fatalf("PrimaryKeyName = %s, want app_uuid", m.PrimaryKeyName)
+	}
+	if m.IDType != "string" {
+		t.Fatalf("IDType = %s, want string", m.IDType)
+	}
+	if m.UseGormModel {
+		t.Fatal("postgres sample should not embed gorm.Model")
+	}
+
+	code, err := m.generateCode()
+	if err != nil {
+		t.Fatalf("generateCode() error = %v", err)
+	}
+
+	if !strings.Contains(code, `return "public.oauth_apps"`) {
+		t.Fatalf("expected qualified postgres table name, got:\n%s", code)
+	}
+	if !strings.Contains(code, "AppUuid string") {
+		t.Fatalf("expected uuid primary key field in generated code, got:\n%s", code)
+	}
+	if !strings.Contains(code, "Payload *datatypes.JSON") {
+		t.Fatalf("expected jsonb field mapping in generated code, got:\n%s", code)
+	}
+}
+
+func TestModel_parseSQLPostgresTableLevelPrimaryKeyRecomputesType(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE oauth_apps (
+		app_uuid uuid,
+		name varchar(80) NOT NULL,
+		PRIMARY KEY (app_uuid)
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	if m.PrimaryKeyName != "app_uuid" {
+		t.Fatalf("PrimaryKeyName = %s, want app_uuid", m.PrimaryKeyName)
+	}
+	if m.IDType != "string" {
+		t.Fatalf("IDType = %s, want string", m.IDType)
+	}
+
+	var pkField *Field
+	for i := range m.TableFields {
+		if m.TableFields[i].JsonName == "app_uuid" {
+			pkField = &m.TableFields[i]
+			break
+		}
+	}
+	if pkField == nil {
+		t.Fatal("primary key field app_uuid not found")
+	}
+	if pkField.Type != "string" {
+		t.Fatalf("pkField.Type = %s, want string", pkField.Type)
+	}
+	if pkField.IsNullable {
+		t.Fatal("primary key field should be non-nullable")
+	}
+}
+
+func TestModel_generateCodeCreateUsesTypedZeroValueOnError(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE oauth_apps (
+		app_uuid uuid PRIMARY KEY,
+		name varchar(80) NOT NULL
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	code, err := m.generateCode()
+	if err != nil {
+		t.Fatalf("generateCode() error = %v", err)
+	}
+
+	if !strings.Contains(code, "return *new(string), fmt.Errorf(\"create failed: %w\", err)") {
+		t.Fatalf("expected create error branch to return typed zero value, got:\n%s", code)
+	}
+}
+
+func TestModel_generateCodeWithoutPrimaryKeyCreateNoInvalidField(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE logs (
+		message text NOT NULL
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	code, err := m.generateCode()
+	if err != nil {
+		t.Fatalf("generateCode() error = %v", err)
+	}
+
+	if strings.Contains(code, ".ID, nil") {
+		t.Fatalf("create branch should not return missing ID field when table has no primary key, got:\n%s", code)
+	}
+	if !strings.Contains(code, "return *new(uint), nil") {
+		t.Fatalf("create branch should return typed zero value when no primary key, got:\n%s", code)
+	}
+}
+
+func TestModel_generateCodeCreateUsesImplicitIDField(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE logs (
+		id bigint generated always as identity,
+		message text NOT NULL
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	if m.HasPrimaryKey {
+		t.Fatal("implicit id should not be treated as explicit primary key metadata")
+	}
+	if m.IDType != "int64" {
+		t.Fatalf("IDType = %s, want int64", m.IDType)
+	}
+
+	code, err := m.generateCode()
+	if err != nil {
+		t.Fatalf("generateCode() error = %v", err)
+	}
+
+	if !strings.Contains(code, "func (l *Log) Create(ctx context.Context, db *gorm.DB) (int64, error)") {
+		t.Fatalf("expected create signature to use implicit id type, got:\n%s", code)
+	}
+	matched, err := regexp.MatchString(`return l\.(ID|Id), nil`, code)
+	if err != nil {
+		t.Fatalf("regexp.MatchString() error = %v", err)
+	}
+	if !matched {
+		t.Fatalf("expected create branch to return implicit id field, got:\n%s", code)
+	}
+	if !strings.Contains(code, `query.Order("id desc").First(&log).Error`) {
+		t.Fatalf("expected Last to order by implicit id field, got:\n%s", code)
+	}
+	if !strings.Contains(code, `query = query.Where("id = ?", l.Id)`) {
+		t.Fatalf("expected Updates to use implicit id field, got:\n%s", code)
+	}
+	assertGeneratedModelCodeFormats(t, m, code)
+}
+
+func TestModel_generateCodeWithoutPrimaryKeyOrIDLastReturnsError(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE logs (
+		message text NOT NULL,
+		created_at bigint NOT NULL
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	code, err := m.generateCode()
+	if err != nil {
+		t.Fatalf("generateCode() error = %v", err)
+	}
+
+	if strings.Contains(code, "query.Last(&log).Error") {
+		t.Fatalf("Last should not fall back to query.Last without an ordering field, got:\n%s", code)
+	}
+	if !strings.Contains(code, `return nil, fmt.Errorf("find last failed: no primary key or id field available for ordering")`) {
+		t.Fatalf("expected Last to return a clear error when no ordering field exists, got:\n%s", code)
+	}
+	assertGeneratedModelCodeFormats(t, m, code)
+}
+
+func TestModel_generateCodeCreateUsesEmbeddedGormModelIDForImplicitID(t *testing.T) {
+	m := NewModelWithDialect("mysql")
+	sqlContent := `CREATE TABLE auth_app (
+		id int NOT NULL AUTO_INCREMENT,
+		app_id varchar(30) NOT NULL,
+		created_at timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+		updated_at timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+		deleted_at timestamp NULL DEFAULT NULL
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	if !m.UseGormModel {
+		t.Fatal("expected standard columns to embed gorm.Model")
+	}
+	if m.IDType != "uint" {
+		t.Fatalf("IDType = %s, want uint", m.IDType)
+	}
+
+	code, err := m.generateCode()
+	if err != nil {
+		t.Fatalf("generateCode() error = %v", err)
+	}
+
+	if !strings.Contains(code, "func (a *App) Create(ctx context.Context, db *gorm.DB) (uint, error)") {
+		t.Fatalf("expected create signature to use embedded gorm.Model ID type, got:\n%s", code)
+	}
+	if !strings.Contains(code, "return a.ID, nil") {
+		t.Fatalf("expected create branch to return embedded gorm.Model ID, got:\n%s", code)
+	}
+}
+
+func TestModel_generateCodeListByArgsUsesPrimaryKeyOrder(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE oauth_apps (
+		app_uuid uuid PRIMARY KEY,
+		name varchar(80) NOT NULL
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	code, err := m.generateCode()
+	if err != nil {
+		t.Fatalf("generateCode() error = %v", err)
+	}
+
+	if !strings.Contains(code, `queryBuilder = queryBuilder.Order("app_uuid desc")`) {
+		t.Fatalf("expected ListByArgs to use parsed primary key for order, got:\n%s", code)
+	}
+	if strings.Contains(code, `Order("id desc")`) {
+		t.Fatalf("expected ListByArgs not to hardcode id ordering, got:\n%s", code)
+	}
+}
+
+func TestModel_generateCodeListByArgsUsesImplicitIDOrder(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE logs (
+		id bigint generated always as identity,
+		message text NOT NULL
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	code, err := m.generateCode()
+	if err != nil {
+		t.Fatalf("generateCode() error = %v", err)
+	}
+
+	if !strings.Contains(code, `queryBuilder = queryBuilder.Order("id desc")`) {
+		t.Fatalf("expected ListByArgs to use implicit id ordering, got:\n%s", code)
+	}
+	assertGeneratedModelCodeFormats(t, m, code)
+}
+
+func TestModel_parseSQLCompositePrimaryKeyDisablesImplicitIDFallback(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE logs (
+		tenant_id uuid NOT NULL,
+		id bigint NOT NULL,
+		message text NOT NULL,
+		PRIMARY KEY (tenant_id, id)
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	if m.HasPrimaryKey {
+		t.Fatal("composite primary key should not be treated as a single-column primary key")
+	}
+	if !m.HasCompositePrimaryKey {
+		t.Fatal("expected composite primary key metadata to be recorded")
+	}
+	if m.PrimaryKeyName != "" {
+		t.Fatalf("PrimaryKeyName = %s, want empty for composite primary key", m.PrimaryKeyName)
+	}
+	if m.prioritizedField() != nil {
+		t.Fatal("composite primary key should disable implicit id fallback")
+	}
+
+	code, err := m.generateCode()
+	if err != nil {
+		t.Fatalf("generateCode() error = %v", err)
+	}
+
+	matched, err := regexp.MatchString(`return l\.(ID|Id), nil`, code)
+	if err != nil {
+		t.Fatalf("regexp.MatchString() error = %v", err)
+	}
+	if matched {
+		t.Fatalf("expected composite primary key model not to return a lone id field, got:\n%s", code)
+	}
+	if strings.Contains(code, `query.Order("id desc").First(&log).Error`) {
+		t.Fatalf("expected composite primary key model not to order by lone id, got:\n%s", code)
+	}
+	if strings.Contains(code, `queryBuilder = queryBuilder.Order("id desc")`) {
+		t.Fatalf("expected composite primary key model not to default ListByArgs ordering to id, got:\n%s", code)
+	}
+	assertGeneratedModelCodeFormats(t, m, code)
+}
+
+func TestModel_generateCodeEmptyTableNameReturnsError(t *testing.T) {
+	m := NewModel()
+
+	if _, err := m.generateCode(); err == nil {
+		t.Fatal("expected generateCode() to return error when table name is empty")
+	}
+}
+
+func TestModel_getGoTypePostgresCharacterVarying(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+
+	result, _ := m.getGoType("character varying(80)", false, false)
+	if result != "string" {
+		t.Fatalf("getGoType(character varying(80)) = %s, want string", result)
+	}
+
+	nullableResult, _ := m.getGoType("character varying(80)", false, true)
+	if nullableResult != "*string" {
+		t.Fatalf("getGoType(nullable character varying(80)) = %s, want *string", nullableResult)
+	}
+}
+
+func TestModel_getGoTypePostgresVarcharArraysFallbackToAny(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+
+	testCases := []struct {
+		sqlType    string
+		isNullable bool
+		expectedGo string
+	}{
+		{sqlType: "varchar[]", isNullable: false, expectedGo: "any"},
+		{sqlType: "varchar(32)[]", isNullable: false, expectedGo: "any"},
+		{sqlType: "character varying[]", isNullable: true, expectedGo: "*any"},
+		{sqlType: "character varying(32)[]", isNullable: true, expectedGo: "*any"},
+	}
+
+	for _, tc := range testCases {
+		result, _ := m.getGoType(tc.sqlType, false, tc.isNullable)
+		if result != tc.expectedGo {
+			t.Fatalf("getGoType(%s) = %s, want %s", tc.sqlType, result, tc.expectedGo)
+		}
+	}
+}
+
+func TestModel_parseSQLPostgresFieldWithCollate(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE "public"."users" (
+		"name" character varying(80) COLLATE "en_US" NOT NULL
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	if len(m.TableFields) != 1 {
+		t.Fatalf("expected 1 parsed field, got %d", len(m.TableFields))
+	}
+
+	field := m.TableFields[0]
+	if field.JsonName != "name" {
+		t.Fatalf("field.JsonName = %s, want name", field.JsonName)
+	}
+	if field.Type != "string" {
+		t.Fatalf("field.Type = %s, want string", field.Type)
+	}
+}
+
+func TestModel_parseSQLPostgresArrayFieldFallsBackSafely(t *testing.T) {
+	m := NewModelWithDialect("postgres")
+	sqlContent := `CREATE TABLE "public"."users" (
+		"tags" varchar(32)[] NOT NULL
+	);`
+
+	if err := m.parseSQL(sqlContent); err != nil {
+		t.Fatalf("parseSQL() error = %v", err)
+	}
+
+	if len(m.TableFields) != 1 {
+		t.Fatalf("expected 1 parsed field, got %d", len(m.TableFields))
+	}
+
+	field := m.TableFields[0]
+	if field.Type != "any" {
+		t.Fatalf("field.Type = %s, want any", field.Type)
+	}
+	if strings.Contains(field.GormTag, "type:varchar(32)") {
+		t.Fatalf("array field should not reuse scalar varchar tag, got %s", field.GormTag)
 	}
 }
