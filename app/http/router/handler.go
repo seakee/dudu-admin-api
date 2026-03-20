@@ -25,7 +25,7 @@ func Register(engine *gin.Engine, ctx *http.Context) {
 		}
 	}
 	if apiPrefix == "" {
-		apiPrefix = "go-api"
+		apiPrefix = "dudu-admin-api"
 	}
 	api := engine.Group(apiPrefix)
 
