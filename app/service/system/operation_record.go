@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/seakee/go-api/app/model/system"
-	repo "github.com/seakee/go-api/app/repository/system"
+	"github.com/seakee/dudu-admin-api/app/model/system"
+	repo "github.com/seakee/dudu-admin-api/app/repository/system"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/redis"
 	"gorm.io/gorm"

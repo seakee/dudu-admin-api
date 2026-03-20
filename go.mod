@@ -1,4 +1,4 @@
-module github.com/seakee/go-api
+module github.com/seakee/dudu-admin-api
 
 go 1.24.13
 

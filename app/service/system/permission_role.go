@@ -2,7 +2,7 @@ package system
 
 import (
 	"context"
-	"github.com/seakee/go-api/app/pkg/e"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
 	"strings"
 )
 

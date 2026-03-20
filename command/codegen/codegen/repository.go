@@ -84,7 +84,7 @@ func (r *Repository) generateCode() (string, error) {
 	r.Imports["errors"] = struct{}{}
 
 	// Always add model import and use package prefix
-	modelImportPath := fmt.Sprintf("github.com/seakee/go-api/app/model/%s", r.Model.PackageName)
+	modelImportPath := fmt.Sprintf("github.com/seakee/dudu-admin-api/app/model/%s", r.Model.PackageName)
 	r.Imports[modelImportPath] = struct{}{}
 
 	// Generate field checks for Update method

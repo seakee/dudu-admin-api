@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/seakee/go-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/model/system"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/redis"
 	"gorm.io/gorm"

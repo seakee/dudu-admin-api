@@ -9,8 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/seakee/go-api/app/pkg/e"
-	apiJWT "github.com/seakee/go-api/app/pkg/jwt"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	apiJWT "github.com/seakee/dudu-admin-api/app/pkg/jwt"
 )
 
 // CheckAppAuth returns a Gin middleware function that checks the application's authentication.

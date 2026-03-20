@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	redigo "github.com/gomodule/redigo/redis"
-	"github.com/seakee/go-api/app/pkg/e"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
 	"github.com/sk-pkg/util"
 )
 

@@ -6,7 +6,7 @@
 
 ## English
 
-Thank you for your interest in contributing to the Go-API framework! This guide will help you get started with contributing to the project.
+Thank you for your interest in contributing to the Dudu-Admin-API framework! This guide will help you get started with contributing to the project.
 
 ### Code of Conduct
 
@@ -60,8 +60,8 @@ We welcome feature suggestions! Please:
 
 ```bash
 # Fork and clone the repository
-git clone https://github.com/your-username/go-api.git
-cd go-api
+git clone https://github.com/your-username/dudu-admin-api.git
+cd dudu-admin-api
 
 # Install dependencies
 go mod download
@@ -87,8 +87,8 @@ Follow the official [Go Code Review Comments](https://github.com/golang/go/wiki/
    # Format code before committing
    make fmt
    
-   # Run linter
-   make lint
+   # Validate build pipeline
+   make all
    ```
 
 2. **Naming Conventions**
@@ -119,8 +119,8 @@ import (
     "gorm.io/gorm"
     
     // Local imports last
-    "github.com/seakee/go-api/app/model/auth"
-    "github.com/seakee/go-api/app/service/auth"
+    "github.com/seakee/dudu-admin-api/app/model/auth"
+    "github.com/seakee/dudu-admin-api/app/service/auth"
 )
 ```
 
@@ -155,7 +155,7 @@ import (
 3. **Package Comments**
    ```go
    // Package auth provides authentication and authorization functionality
-   // for the go-api framework. It includes JWT token management,
+   // for the dudu-admin-api project. It includes JWT token management,
    // user authentication, and permission checking.
    package auth
    ```
@@ -383,7 +383,7 @@ Contributors are recognized in:
 
 ## 中文
 
-感谢您对Go-API框架的贡献兴趣！本指南将帮助您开始为项目做贡献。
+感谢您对Dudu-Admin-API框架的贡献兴趣！本指南将帮助您开始为项目做贡献。
 
 ### 行为准则
 
@@ -437,8 +437,8 @@ Contributors are recognized in:
 
 ```bash
 # Fork并克隆仓库
-git clone https://github.com/your-username/go-api.git
-cd go-api
+git clone https://github.com/your-username/dudu-admin-api.git
+cd dudu-admin-api
 
 # 安装依赖
 go mod download
@@ -464,8 +464,8 @@ make run
    # 提交前格式化代码
    make fmt
    
-   # 运行代码检查
-   make lint
+   # 校验完整构建流程
+   make all
    ```
 
 2. **命名约定**
@@ -496,8 +496,8 @@ import (
     "gorm.io/gorm"
     
     // 本地导入最后
-    "github.com/seakee/go-api/app/model/auth"
-    "github.com/seakee/go-api/app/service/auth"
+    "github.com/seakee/dudu-admin-api/app/model/auth"
+    "github.com/seakee/dudu-admin-api/app/service/auth"
 )
 ```
 

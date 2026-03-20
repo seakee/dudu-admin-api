@@ -6,7 +6,7 @@ package bootstrap
 
 import (
 	"context"
-	"github.com/seakee/go-api/app/worker"
+	"github.com/seakee/dudu-admin-api/app/worker"
 	"go.uber.org/zap"
 )
 

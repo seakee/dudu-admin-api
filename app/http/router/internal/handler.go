@@ -2,9 +2,9 @@ package internal
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/http"
-	"github.com/seakee/go-api/app/http/router/internal/admin"
-	"github.com/seakee/go-api/app/http/router/internal/service"
+	"github.com/seakee/dudu-admin-api/app/http"
+	"github.com/seakee/dudu-admin-api/app/http/router/internal/admin"
+	"github.com/seakee/dudu-admin-api/app/http/router/internal/service"
 )
 
 // RegisterRoutes registers all internal API routes.

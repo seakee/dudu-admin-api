@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/qiniu/qmgo"
 	"github.com/qiniu/qmgo/options"
-	"github.com/seakee/go-api/app/config"
+	"github.com/seakee/dudu-admin-api/app/config"
 	"github.com/sk-pkg/xdb"
 	mgOpt "go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/gorm"

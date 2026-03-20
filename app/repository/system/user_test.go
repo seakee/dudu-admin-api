@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/glebarez/sqlite"
-	model "github.com/seakee/go-api/app/model/system"
+	model "github.com/seakee/dudu-admin-api/app/model/system"
 	"gorm.io/gorm"
 )
 

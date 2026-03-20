@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/seakee/go-api/app/pkg/e"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/util"
 	"strings"

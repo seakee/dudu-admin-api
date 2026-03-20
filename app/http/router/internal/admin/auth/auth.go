@@ -2,8 +2,8 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/http"
-	authController "github.com/seakee/go-api/app/http/controller/admin/auth"
+	"github.com/seakee/dudu-admin-api/app/http"
+	authController "github.com/seakee/dudu-admin-api/app/http/controller/admin/auth"
 )
 
 // registerAuthRoutes organizes admin auth endpoints by shared middleware and business domain.

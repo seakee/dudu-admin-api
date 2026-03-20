@@ -3,7 +3,7 @@ package controller
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/http"
+	"github.com/seakee/dudu-admin-api/app/http"
 	"github.com/sk-pkg/i18n"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/redis"

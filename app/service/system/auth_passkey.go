@@ -14,9 +14,9 @@ import (
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
 	redigo "github.com/gomodule/redigo/redis"
-	systemModel "github.com/seakee/go-api/app/model/system"
-	"github.com/seakee/go-api/app/pkg/e"
-	repo "github.com/seakee/go-api/app/repository/system"
+	systemModel "github.com/seakee/dudu-admin-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
+	repo "github.com/seakee/dudu-admin-api/app/repository/system"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

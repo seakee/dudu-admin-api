@@ -10,7 +10,7 @@ package worker
 
 import (
 	"context"
-	"github.com/seakee/go-api/app/pkg/trace"
+	"github.com/seakee/dudu-admin-api/app/pkg/trace"
 	"github.com/sk-pkg/logger"
 	"github.com/sk-pkg/notify"
 	"github.com/sk-pkg/redis"
@@ -52,7 +52,7 @@ type handler struct {
 func (h *handler) Start(ctx context.Context) error {
 	// TODO: Uncomment and implement telegram worker
 	// Initialize telegram worker with required dependencies
-	// telegramWork, err := telegram.NewWorker(h.logger, h.redis["go-api"], h.db["go-api"], h.notify, h.traceID)
+	// telegramWork, err := telegram.NewWorker(h.logger, h.redis["dudu-admin-api"], h.db["dudu-admin-api"], h.notify, h.traceID)
 	// if err != nil {
 	//     return err
 	// }

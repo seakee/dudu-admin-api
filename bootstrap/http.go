@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	appHttp "github.com/seakee/go-api/app/http"
-	"github.com/seakee/go-api/app/http/middleware"
-	"github.com/seakee/go-api/app/http/router"
+	appHttp "github.com/seakee/dudu-admin-api/app/http"
+	"github.com/seakee/dudu-admin-api/app/http/middleware"
+	"github.com/seakee/dudu-admin-api/app/http/router"
 	"github.com/sk-pkg/monitor"
 	"go.uber.org/zap"
 )

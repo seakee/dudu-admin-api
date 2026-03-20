@@ -1,5 +1,5 @@
 # App name
-APP_NAME ?= go-api
+APP_NAME ?= dudu-admin-api
 
 # Timezone
 TZ ?= Asia/Shanghai
@@ -17,7 +17,7 @@ GO_FLAGS = -ldflags="-s -w"
 RUN_ENV ?= local
 
 # Targets
-.PHONY: all test build run docker-build docker-run clean
+.PHONY: all fmt test build run docker-build docker-run docker-clean clean
 
 # Default target that includes formatting, linting, testing, and building
 all: fmt test build

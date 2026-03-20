@@ -2,183 +2,132 @@
 
 **Languages**: [English](Architecture-Design.md) | [中文](Architecture-Design-zh.md)
 
----
-
 ## Overview
 
-The Go-API framework follows a clean, layered architecture pattern designed for enterprise-grade applications. It emphasizes separation of concerns, dependency injection, and maintainability.
+`dudu-admin-api` is an HTTP-centric admin backend built on Gin, GORM, Redis, and Kafka.
+The architecture emphasizes clear layering and explicit middleware boundaries.
 
-### Architecture Layers
+## Startup and Runtime Flow
 
-```
-┌─────────────────────────────────────┐
-│           Presentation Layer        │
-│        (HTTP Controllers)           │
-├─────────────────────────────────────┤
-│           Business Layer            │
-│           (Services)                │
-├─────────────────────────────────────┤
-│         Data Access Layer           │
-│         (Repositories)              │
-├─────────────────────────────────────┤
-│            Data Layer               │
-│      (Models & Database)            │
-└─────────────────────────────────────┘
-```
+Startup chain:
 
-#### 1. Presentation Layer (Controllers)
+`main.go` -> `config.LoadConfig` -> `bootstrap.NewApp` -> `App.Start`
 
-**Purpose**: Handle HTTP requests and responses
-**Location**: `app/http/controller/`
+Runtime HTTP path:
 
-- Receives HTTP requests from clients
-- Validates input parameters
-- Calls appropriate service methods
-- Formats and returns HTTP responses
-- Handles authentication and authorization via middleware
+`bootstrap/http.go` -> `app/http/router`
 
-**Example Structure**:
-```go
-type Handler interface {
-    Create() gin.HandlerFunc
-    GetByID() gin.HandlerFunc
-    Update() gin.HandlerFunc
-    Delete() gin.HandlerFunc
-}
+## Route Topology
 
-type handler struct {
-    controller.BaseController
-    service auth.AppService
-}
-```
+`system.api_prefix` controls route prefix (default: `dudu-admin-api`).
 
-#### 2. Business Layer (Services)
+Primary groups:
+- `/{apiPrefix}/external/...`
+- `/{apiPrefix}/internal/...`
+- `/{apiPrefix}/internal/admin/...`
+- `/{apiPrefix}/internal/service/...`
 
-**Purpose**: Implement business logic and rules
-**Location**: `app/service/`
+## Layering Contract
 
-- Contains all business logic
-- Orchestrates operations across multiple repositories
-- Implements complex business rules and validations
-- Handles transactions and data consistency
-- Independent of HTTP concerns
+Required order:
 
-**Example Structure**:
-```go
-type AppService interface {
-    CreateApp(ctx context.Context, params *CreateAppParams) (*CreateAppResult, error)
-    ValidateCredentials(ctx context.Context, appID, appSecret string) (*App, error)
-}
+Model -> Repository -> Service -> Controller
 
-type appService struct {
-    repo auth.AppRepo
-}
-```
+### Controller Layer
 
-#### 3. Data Access Layer (Repositories)
+Location: `app/http/controller/`
 
-**Purpose**: Abstract data access operations
-**Location**: `app/repository/`
+Responsibilities:
+- request parsing and validation
+- invoking service methods
+- unified response output
 
-- Provides abstraction over database operations
-- Implements data access patterns
-- Handles database connections and queries
-- Converts between domain models and database entities
-- Supports multiple database types (MySQL, MongoDB)
+### Service Layer
 
-**Example Structure**:
-```go
-type AppRepo interface {
-    Create(ctx context.Context, app *auth.App) (uint, error)
-    GetByID(ctx context.Context, id uint) (*auth.App, error)
-    Update(ctx context.Context, id uint, app *auth.App) error
-    Delete(ctx context.Context, id uint) error
-}
-```
+Location: `app/service/`
 
-#### 4. Data Layer (Models)
+Responsibilities:
+- business rules and orchestration
+- cross-repository coordination
+- context propagation
 
-**Purpose**: Define data structures and basic operations
-**Location**: `app/model/`
+Constraints:
+- should accept `context.Context`
+- should not depend on Gin request/response handling
 
-- Defines data structures (structs)
-- Contains basic CRUD operations
-- Includes database schema definitions (GORM tags)
-- Handles data validation and serialization
-- Supports both SQL and NoSQL databases
+### Repository Layer
 
-### Dependency Injection Pattern
+Location: `app/repository/`
 
-The framework uses constructor-based dependency injection:
+Responsibilities:
+- persistence access and query composition
 
-```go
-// Service layer receives only what it needs
-func NewAppService(db *gorm.DB, redis *redis.Manager) AppService {
-    repo := authRepo.NewAppRepo(db, redis)
-    return &appService{repo: repo}
-}
+Constraints:
+- reuse model-layer helper methods first (`Where`, `First`, `List`, `Create`, `Updates`, `Count`, etc.)
+- direct `db.WithContext(ctx)...` is reserved for:
+  - transactions
+  - query patterns not covered by model helpers (`Select`, `Pluck`, `Joins`)
 
-// Controller layer injects dependencies into service
-func NewHandler(appCtx *http.Context) Handler {
-    return &handler{
-        service: authService.NewAppService(appCtx.SqlDB["go-api"], appCtx.Redis["go-api"]),
-    }
-}
+### Model Layer
+
+Location: `app/model/`
+
+Responsibilities:
+- table/entity definitions
+- shared CRUD helper methods
+- pagination/sorting helper patterns used by repositories
+
+## Middleware Boundaries
+
+Core middleware includes:
+- trace propagation (`SetTraceID`)
+- CORS
+- app auth (`CheckAppAuth`)
+- admin auth (`CheckAdminAuth`)
+- operation logging (`SaveOperationRecord`)
+
+Admin system routes under `/{apiPrefix}/internal/admin/system/*` use both auth and operation-record controls.
+Admin auth routes under `/{apiPrefix}/internal/admin/auth/*` use route-specific auth controls and do not apply `SaveOperationRecord` by default.
+Sensitive payloads must not be exposed in logs.
+
+## Configuration Design
+
+Runtime config files:
+- `bin/configs/local.json`
+- `bin/configs/dev.json`
+- `bin/configs/prod.json`
+
+Runtime environment variables:
+- `RUN_ENV` selects config profile
+- `APP_NAME` optionally overrides `system.name`
+
+## Error and i18n Model
+
+- Error code definitions live in `app/pkg/e/*.go`
+- i18n messages live in:
+  - `bin/lang/en-US.json`
+  - `bin/lang/zh-CN.json`
+
+New error codes must update both language files.
+
+## Verification Baseline
+
+Before finalizing architecture-impacting changes:
+
+```bash
+gofmt -w .
+go test ./...
 ```
 
-### Middleware Architecture
+Recommended for medium/large scope:
 
-```
-Request → SetTraceID → CORS → RequestLogger → CheckAppAuth → Controller
-```
-
-Middleware components:
-- **SetTraceID**: Generates unique trace IDs for request tracking
-- **CORS**: Handles cross-origin requests
-- **RequestLogger**: Logs request details for monitoring
-- **CheckAppAuth**: Validates JWT tokens for authentication
-
-### Configuration Management
-
-Multi-environment configuration with hot-reload support:
-
-```json
-{
-  "system": {
-    "name": "go-api",
-    "run_mode": "debug|release",
-    "http_port": ":8080"
-  },
-  "databases": [...],
-  "redis": [...],
-  "kafka": {...}
-}
+```bash
+go test -race ./...
 ```
 
-Environment-specific files:
-- `local.json` - Local development
-- `dev.json` - Development environment
-- `prod.json` - Production environment
+## Related Docs
 
-### Error Handling Strategy
-
-1. **Error Propagation**: Errors bubble up through layers
-2. **Centralized Handling**: Controllers handle all error responses
-3. **Internationalization**: Error messages support multiple languages
-4. **Structured Logging**: All errors are logged with context
-
-### Security Architecture
-
-1. **JWT Authentication**: Token-based authentication system
-2. **Middleware Protection**: Route-level authentication
-3. **Input Validation**: Parameter validation at controller layer
-4. **SQL Injection Prevention**: Parameterized queries via GORM
-5. **CORS Protection**: Configurable cross-origin policies
-
-### Performance Considerations
-
-1. **Connection Pooling**: Database connection pools for efficiency
-2. **Caching**: Redis integration for caching frequently accessed data
-3. **Asynchronous Processing**: Background job processing via workers
-4. **Structured Logging**: High-performance logging with Zap
-5. **Graceful Shutdown**: Proper resource cleanup on shutdown
+- [Development Guide](Development-Guide.md)
+- [API Documentation](API-Documentation.md)
+- [Admin Auth](Admin-Auth.md)
+- [Admin System Management](Admin-System-Management.md)

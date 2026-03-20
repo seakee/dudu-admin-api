@@ -89,6 +89,9 @@ func LoadConfig() (*Config, error) {
 	config.System.RootPath = rootPath
 	config.System.EnvKey = envKey
 	config.System.LangDir = filepath.Join(rootPath, "bin", "lang")
+	if config.System.APIPrefix == "" {
+		config.System.APIPrefix = "dudu-admin-api"
+	}
 
 	// Perform configuration checks
 	err = checkConfig(config)

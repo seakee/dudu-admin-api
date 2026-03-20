@@ -1,1002 +1,137 @@
-# API Documentation | API文档
+# API Documentation
 
-[English](#english) | [中文](#中文)
+**Languages**: [English](API-Documentation.md) | [中文](API-Documentation-zh.md)
 
----
+## Overview
 
-## English
+This document provides API entry points and common contracts.
+Detailed admin API behavior is documented in:
 
-### Authentication
+- [Admin Auth](Admin-Auth.md)
+- [Admin System Management](Admin-System-Management.md)
 
-All protected endpoints require JWT authentication. Include the token in the Authorization header:
+## Base URL
 
-```
-Authorization: Bearer <your-jwt-token>
-```
+Local:
 
-### Base URL
-
-```
-Local Development: http://localhost:8080
-Production: https://your-domain.com
+```text
+http://localhost:8080
 ```
 
-### API Endpoints
+Full route prefix:
 
-#### Authentication Endpoints
-
-##### Get JWT Token
-
-**POST** `/go-api/external/service/auth/token`
-
-Obtain a JWT token for API access.
-
-**Request Body (form-data):**
-```
-app_id: string (required) - Application ID
-app_secret: string (required) - Application Secret
+```text
+/{apiPrefix}/...
 ```
 
-**Response:**
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expires_in": 604800
-  }
-}
+Default `apiPrefix`: `dudu-admin-api`.
+
+## Route Groups
+
+### External
+
+- `/{apiPrefix}/external/ping`
+- `/{apiPrefix}/external/service/auth/token`
+- `/{apiPrefix}/external/service/auth/app`
+
+### Internal Service
+
+- `/{apiPrefix}/internal/ping`
+- `/{apiPrefix}/internal/service/auth/token`
+- `/{apiPrefix}/internal/service/auth/app`
+
+### Internal Admin Auth
+
+Mounted under:
+
+- `/{apiPrefix}/internal/admin/auth/...`
+
+See full route list and flow:
+
+- [Admin Auth](Admin-Auth.md)
+
+### Internal Admin System
+
+Mounted under:
+
+- `/{apiPrefix}/internal/admin/system/...`
+
+Main modules:
+- `menu`
+- `permission`
+- `role`
+- `user`
+- `record`
+
+See full route list and payload contracts:
+
+- [Admin System Management](Admin-System-Management.md)
+
+## Authentication
+
+### App APIs
+
+Protected app APIs use:
+
+```text
+Authorization: Bearer <app-token>
 ```
 
-**cURL Example:**
-```bash
-curl -X POST http://localhost:8080/go-api/external/service/auth/token \
-  -d "app_id=your_app_id" \
-  -d "app_secret=your_app_secret"
+Token endpoint:
+
+```text
+POST /{apiPrefix}/external/service/auth/token
 ```
 
-##### Create Application
+### Admin APIs
 
-**POST** `/go-api/external/service/auth/app`
+Admin APIs use `CheckAdminAuth`.
+Token can be provided by:
+- `Authorization: Bearer <admin-token>`
+- Cookie `admin-token`
 
-Create a new application (requires authentication).
+## Operation Logging
 
-**Headers:**
-```
-Authorization: Bearer <your-jwt-token>
-Content-Type: application/json
-```
+Routes under `/{apiPrefix}/internal/admin/system/*` are recorded by `SaveOperationRecord`.
+Admin auth routes (`/{apiPrefix}/internal/admin/auth/*`) do not apply `SaveOperationRecord` by default.
+Sensitive payloads should be redacted or omitted.
 
-**Request Body:**
-```json
-{
-  "app_name": "My Application",
-  "description": "Application description",
-  "redirect_uri": "https://example.com/callback"
-}
-```
-
-**Response:**
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": {
-    "app_id": "generated_app_id",
-    "app_secret": "generated_app_secret"
-  }
-}
-```
-
-**cURL Example:**
-```bash
-curl -X POST http://localhost:8080/go-api/external/service/auth/app \
-  -H "Authorization: Bearer your_jwt_token" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "app_name": "My Application",
-    "description": "Application description",
-    "redirect_uri": "https://example.com/callback"
-  }'
-```
-
-#### Admin System Endpoints (Internal)
-
-System management APIs are mounted at `/go-api/internal/admin/system`.
-
-- Auth middleware: `CheckAdminAuth`
-- Token source: `Authorization: Bearer <admin-token>` or Cookie `admin-token`
-- Audit middleware: routes under `/go-api/internal/admin/*` are recorded by `SaveOperationRecord`
-
-##### Route Index
-
-| Module | Method | Path | Description |
-|------|------|------|------|
-| System | GET | `/go-api/internal/admin/system/ping` | System health check |
-| Menu | GET | `/go-api/internal/admin/system/menu/list` | Menu tree |
-| Menu | GET | `/go-api/internal/admin/system/menu` | Menu detail |
-| Menu | POST | `/go-api/internal/admin/system/menu` | Create menu |
-| Menu | PUT | `/go-api/internal/admin/system/menu` | Update menu |
-| Menu | DELETE | `/go-api/internal/admin/system/menu` | Delete menu |
-| Permission | GET | `/go-api/internal/admin/system/permission/available` | Unbound admin routes by HTTP method |
-| Permission | GET | `/go-api/internal/admin/system/permission/list` | Grouped permission list |
-| Permission | GET | `/go-api/internal/admin/system/permission/paginate` | Permission pagination |
-| Permission | GET | `/go-api/internal/admin/system/permission` | Permission detail |
-| Permission | POST | `/go-api/internal/admin/system/permission` | Create permission |
-| Permission | PUT | `/go-api/internal/admin/system/permission` | Update permission |
-| Permission | DELETE | `/go-api/internal/admin/system/permission` | Delete permission |
-| Role | GET | `/go-api/internal/admin/system/role/list` | Role list |
-| Role | GET | `/go-api/internal/admin/system/role/paginate` | Role pagination |
-| Role | GET | `/go-api/internal/admin/system/role` | Role detail |
-| Role | POST | `/go-api/internal/admin/system/role` | Create role |
-| Role | PUT | `/go-api/internal/admin/system/role` | Update role |
-| Role | DELETE | `/go-api/internal/admin/system/role` | Delete role |
-| Role | GET | `/go-api/internal/admin/system/role/permission` | Role permission IDs |
-| Role | PUT | `/go-api/internal/admin/system/role/permission` | Update role permissions |
-| User | GET | `/go-api/internal/admin/system/user/paginate` | User pagination |
-| User | GET | `/go-api/internal/admin/system/user` | User detail |
-| User | POST | `/go-api/internal/admin/system/user` | Create user |
-| User | PUT | `/go-api/internal/admin/system/user` | Update user |
-| User | DELETE | `/go-api/internal/admin/system/user` | Delete user |
-| User | GET | `/go-api/internal/admin/system/user/role` | User role IDs |
-| User | PUT | `/go-api/internal/admin/system/user/role` | Update user roles (keeps `base` role) |
-| User | PUT | `/go-api/internal/admin/system/user/password/reset` | Admin reset password |
-| User | PUT | `/go-api/internal/admin/system/user/tfa/disable` | Admin disable TFA |
-| User | GET | `/go-api/internal/admin/system/user/passkeys` | Admin list user passkeys |
-| User | DELETE | `/go-api/internal/admin/system/user/passkey` | Admin delete a user passkey |
-| User | DELETE | `/go-api/internal/admin/system/user/passkeys` | Admin delete all user passkeys |
-| Record | GET | `/go-api/internal/admin/system/record/paginate` | Operation record pagination |
-| Record | GET | `/go-api/internal/admin/system/record/detail` | Operation record detail |
-
-##### Core Data Structures (actual fields)
-
-`User` pagination/detail item:
-```json
-{
-  "id": 1,
-  "email": "admin@example.com",
-  "phone": "+8613800000000",
-  "totp_enabled": false,
-  "passkey_count": 2,
-  "user_name": "Administrator",
-  "status": 1,
-  "avatar": "",
-  "created_at": "2026-02-06T10:00:00+08:00"
-}
-```
-
-Note: third-party account bindings are stored in `sys_user_identity`, passkey credentials are stored in `sys_user_passkey`, and `passkey_count` summarizes the number of registered passkeys for the user.
-
-`Role` list item (`/role/list`):
-```json
-{
-  "id": 1,
-  "name": "base",
-  "description": "Base role"
-}
-```
-
-`Permission` item (`/permission/paginate` and `/permission`):
-```json
-{
-  "ID": 1,
-  "CreatedAt": "2026-02-06T10:00:00+08:00",
-  "UpdatedAt": "2026-02-06T10:00:00+08:00",
-  "DeletedAt": null,
-  "name": "user:list",
-  "type": "api",
-  "method": "GET",
-  "path": "/go-api/internal/admin/system/user/paginate",
-  "description": "List users",
-  "group": "user"
-}
-```
-
-`Menu` item (`/menu/list` and `/menu`):
-```json
-{
-  "ID": 1,
-  "CreatedAt": "2026-02-06T10:00:00+08:00",
-  "UpdatedAt": "2026-02-06T10:00:00+08:00",
-  "DeletedAt": null,
-  "name": "System",
-  "path": "/system",
-  "permission_id": 10,
-  "parent_id": 0,
-  "icon": "setting",
-  "sort": 1,
-  "children": []
-}
-```
-
-`OperationRecord` item (`/record/paginate`):
-```json
-{
-  "ID": 1024,
-  "CreatedAt": "2026-02-06T10:00:00+08:00",
-  "UpdatedAt": "2026-02-06T10:00:01+08:00",
-  "DeletedAt": null,
-  "ip": "127.0.0.1",
-  "method": "POST",
-  "path": "/go-api/internal/admin/system/user",
-  "status": 200,
-  "latency": 0.031,
-  "agent": "Mozilla/5.0",
-  "error_message": "",
-  "user_id": 1,
-  "user_name": "admin",
-  "params": "{\"user_name\":\"demo\"}",
-  "resp": "{\"code\":0,\"msg\":\"OK\"}",
-  "trace_id": "trace-xxx"
-}
-```
-
-`OperationRecordDetail` (`/record/detail`):
-```json
-{
-  "id": 1024,
-  "method": "POST",
-  "path": "/go-api/internal/admin/system/user",
-  "ip": "127.0.0.1",
-  "status": 0,
-  "user_id": 1,
-  "user_name": "admin",
-  "trace_id": "trace-xxx",
-  "created_at": "2026-02-06T10:00:00+08:00",
-  "latency": 0.031,
-  "agent": "Mozilla/5.0",
-  "error_message": "",
-  "params": {
-    "user_name": "demo"
-  },
-  "resp": {
-    "code": 0,
-    "msg": "OK"
-  }
-}
-```
-
-##### Pagination Notes (admin system)
-
-- `user/role/permission` use query `page` + `page_size` (default `1` + `10`, max `100`), response `{ "list": [...], "total": n }`
-- `record` uses query `page` + `size` (default `1` + `10`, max `100`), response `{ "items": [...], "total": n }`
-
-> Full request/response examples and module-level error codes are maintained in `docs/Admin-System-Management.md`.
->
-> Admin auth endpoints are documented in `docs/Admin-Auth.md`. `GET /go-api/internal/admin/auth/profile` now returns masked `email/phone` values for display only; if a client submits the same masked value back to `PUT /go-api/internal/admin/auth/identifier`, the server treats that field as unchanged. For password-related fields in admin auth flows (`/go-api/internal/admin/auth/token` with `grant_type=password`, `/password/reset`, `/password`, and `/identifier` when TFA is disabled), clients must send `md5(plaintext password)`.
-
-#### Health Check Endpoints
-
-##### External Health Check
-
-**GET** `/go-api/external/service/ping`
-
-Check external service health.
-
-**Response:**
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": null
-}
-```
-
-##### Internal Health Check
-
-**GET** `/go-api/internal/service/ping`
-
-Check internal service health.
-
-**Response:**
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": null
-}
-```
-
-### Response Format
-
-All API responses follow this standard format:
+## Common Response Format
 
 ```json
 {
   "code": 0,
   "message": "ok",
-  "data": {
-    // Response data
-  }
+  "data": {}
 }
 ```
 
-#### Response Codes
+## Health Check
 
-| Code | Message | Description |
-|------|---------|-------------|
-| 0 | ok | Success |
-| -1 | System is busy | System error |
-| 400 | Request parameter error | Invalid parameters |
-| 500 | fail | Server error |
-| 10001 | Unauthorized | Authentication required |
-| 10002 | Authorization has failed | Invalid credentials |
-| 10003 | Authorization failed | Authorization error |
-| 10004 | Application does not exist or account info error | App not found |
-| 10005 | Application already exists | Duplicate app |
-| 10006 | User does not exist | User not found |
+External:
 
-### Error Handling
-
-#### Validation Errors
-
-When request validation fails:
-
-```json
-{
-  "code": 400,
-  "message": "Request parameter error",
-  "data": null
-}
+```text
+GET /{apiPrefix}/external/ping
 ```
 
-#### Authentication Errors
+Internal:
 
-When authentication fails:
-
-```json
-{
-  "code": 10001,
-  "message": "Unauthorized",
-  "data": null
-}
+```text
+GET /{apiPrefix}/internal/ping
 ```
 
-#### Server Errors
+## Error Codes and i18n
 
-When server encounters an error:
+- Error code definitions: `app/pkg/e/*.go`
+- i18n message files:
+  - `bin/lang/en-US.json`
+  - `bin/lang/zh-CN.json`
 
-```json
-{
-  "code": 500,
-  "message": "fail",
-  "data": null
-}
-```
+When adding new error codes, update both language files.
 
-### Rate Limiting
+## Related Docs
 
-API requests are rate-limited to prevent abuse:
-
-- **Limit**: 1000 requests per hour per IP
-- **Headers**: Rate limit information is returned in response headers
-  - `X-RateLimit-Limit`: Request limit
-  - `X-RateLimit-Remaining`: Remaining requests
-  - `X-RateLimit-Reset`: Reset time (Unix timestamp)
-
-### Pagination
-
-For endpoints that return lists, use pagination parameters:
-
-**Query Parameters:**
-```
-Common: page: int (default: 1) - Page number
-Common: page_size/size: int (default: 10, max: 100) - Items per page
-```
-
-**Response Format:**
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": {
-    "list": [...],
-    "total": 100
-  }
-}
-```
-
-Some modules return `{ "items": [...], "total": n }` instead.
-
-### API Versioning
-
-The API uses URL versioning:
-
-- Current version: `v1` (default)
-- Future versions: `/go-api/v2/...`
-
-### Testing with Postman
-
-#### Environment Variables
-
-Set up these variables in Postman:
-
-```
-base_url: http://localhost:8080
-jwt_token: (obtained from auth/token endpoint)
-```
-
-#### Collection Example
-
-1. **Get Token**
-   - Method: POST
-   - URL: `{{base_url}}/go-api/external/service/auth/token`
-   - Body: form-data with `app_id` and `app_secret`
-
-2. **Create App**
-   - Method: POST
-   - URL: `{{base_url}}/go-api/external/service/auth/app`
-   - Headers: `Authorization: Bearer {{jwt_token}}`
-   - Body: JSON with app details
-
-### WebSocket Support
-
-For real-time features, WebSocket connections are available:
-
-**Connection URL:**
-```
-ws://localhost:8080/ws
-wss://your-domain.com/ws (production)
-```
-
-**Authentication:**
-```
-Send JWT token as query parameter: ?token=your_jwt_token
-```
-
-### SDK Examples
-
-#### JavaScript/Node.js
-
-```javascript
-const axios = require('axios');
-
-class GoAPIClient {
-  constructor(baseURL, appId, appSecret) {
-    this.baseURL = baseURL;
-    this.appId = appId;
-    this.appSecret = appSecret;
-    this.token = null;
-  }
-
-  async authenticate() {
-    const response = await axios.post(`${this.baseURL}/go-api/external/service/auth/token`, 
-      new URLSearchParams({
-        app_id: this.appId,
-        app_secret: this.appSecret
-      })
-    );
-    
-    if (response.data.code === 0) {
-      this.token = response.data.data.token;
-      return this.token;
-    }
-    throw new Error('Authentication failed');
-  }
-
-  async createApp(appData) {
-    if (!this.token) {
-      await this.authenticate();
-    }
-
-    const response = await axios.post(
-      `${this.baseURL}/go-api/external/service/auth/app`,
-      appData,
-      {
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    return response.data;
-  }
-}
-
-// Usage
-const client = new GoAPIClient('http://localhost:8080', 'your_app_id', 'your_app_secret');
-```
-
-#### Python
-
-```python
-import requests
-from urllib.parse import urlencode
-
-class GoAPIClient:
-    def __init__(self, base_url, app_id, app_secret):
-        self.base_url = base_url
-        self.app_id = app_id
-        self.app_secret = app_secret
-        self.token = None
-
-    def authenticate(self):
-        url = f"{self.base_url}/go-api/external/service/auth/token"
-        data = {
-            'app_id': self.app_id,
-            'app_secret': self.app_secret
-        }
-        
-        response = requests.post(url, data=data)
-        result = response.json()
-        
-        if result['code'] == 0:
-            self.token = result['data']['token']
-            return self.token
-        raise Exception('Authentication failed')
-
-    def create_app(self, app_data):
-        if not self.token:
-            self.authenticate()
-
-        url = f"{self.base_url}/go-api/external/service/auth/app"
-        headers = {
-            'Authorization': f'Bearer {self.token}',
-            'Content-Type': 'application/json'
-        }
-        
-        response = requests.post(url, json=app_data, headers=headers)
-        return response.json()
-
-# Usage
-client = GoAPIClient('http://localhost:8080', 'your_app_id', 'your_app_secret')
-```
-
----
-
-## 中文
-
-### 认证
-
-所有受保护的端点都需要JWT认证。在Authorization头中包含令牌：
-
-```
-Authorization: Bearer <your-jwt-token>
-```
-
-### 基础URL
-
-```
-本地开发: http://localhost:8080
-生产环境: https://your-domain.com
-```
-
-### API端点
-
-#### 认证端点
-
-##### 获取JWT令牌
-
-**POST** `/go-api/external/service/auth/token`
-
-获取API访问的JWT令牌。
-
-**请求体 (form-data):**
-```
-app_id: string (必需) - 应用ID
-app_secret: string (必需) - 应用密钥
-```
-
-**响应:**
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expires_in": 604800
-  }
-}
-```
-
-**cURL示例:**
-```bash
-curl -X POST http://localhost:8080/go-api/external/service/auth/token \
-  -d "app_id=your_app_id" \
-  -d "app_secret=your_app_secret"
-```
-
-##### 创建应用
-
-**POST** `/go-api/external/service/auth/app`
-
-创建新应用（需要认证）。
-
-**请求头:**
-```
-Authorization: Bearer <your-jwt-token>
-Content-Type: application/json
-```
-
-**请求体:**
-```json
-{
-  "app_name": "我的应用",
-  "description": "应用描述",
-  "redirect_uri": "https://example.com/callback"
-}
-```
-
-**响应:**
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": {
-    "app_id": "generated_app_id",
-    "app_secret": "generated_app_secret"
-  }
-}
-```
-
-#### 系统管理端点（内部）
-
-系统管理接口挂载在 `/go-api/internal/admin/system`。
-
-- 认证中间件：`CheckAdminAuth`
-- 令牌来源：`Authorization: Bearer <admin-token>` 或 Cookie `admin-token`
-- 审计中间件：`/go-api/internal/admin/*` 路由统一经过 `SaveOperationRecord` 并记录操作日志
-
-##### 路由清单
-
-| 模块 | 方法 | 路径 | 说明 |
-|------|------|------|------|
-| System | GET | `/go-api/internal/admin/system/ping` | 系统健康检查 |
-| Menu | GET | `/go-api/internal/admin/system/menu/list` | 菜单树列表 |
-| Menu | GET | `/go-api/internal/admin/system/menu` | 菜单详情 |
-| Menu | POST | `/go-api/internal/admin/system/menu` | 创建菜单 |
-| Menu | PUT | `/go-api/internal/admin/system/menu` | 更新菜单 |
-| Menu | DELETE | `/go-api/internal/admin/system/menu` | 删除菜单 |
-| Permission | GET | `/go-api/internal/admin/system/permission/available` | 按 HTTP 方法分组的待绑定后台路由 |
-| Permission | GET | `/go-api/internal/admin/system/permission/list` | 按分组权限列表 |
-| Permission | GET | `/go-api/internal/admin/system/permission/paginate` | 权限分页 |
-| Permission | GET | `/go-api/internal/admin/system/permission` | 权限详情 |
-| Permission | POST | `/go-api/internal/admin/system/permission` | 创建权限 |
-| Permission | PUT | `/go-api/internal/admin/system/permission` | 更新权限 |
-| Permission | DELETE | `/go-api/internal/admin/system/permission` | 删除权限 |
-| Role | GET | `/go-api/internal/admin/system/role/list` | 角色列表 |
-| Role | GET | `/go-api/internal/admin/system/role/paginate` | 角色分页 |
-| Role | GET | `/go-api/internal/admin/system/role` | 角色详情 |
-| Role | POST | `/go-api/internal/admin/system/role` | 创建角色 |
-| Role | PUT | `/go-api/internal/admin/system/role` | 更新角色 |
-| Role | DELETE | `/go-api/internal/admin/system/role` | 删除角色 |
-| Role | GET | `/go-api/internal/admin/system/role/permission` | 角色权限 ID 列表 |
-| Role | PUT | `/go-api/internal/admin/system/role/permission` | 更新角色权限 |
-| User | GET | `/go-api/internal/admin/system/user/paginate` | 用户分页 |
-| User | GET | `/go-api/internal/admin/system/user` | 用户详情 |
-| User | POST | `/go-api/internal/admin/system/user` | 创建用户 |
-| User | PUT | `/go-api/internal/admin/system/user` | 更新用户 |
-| User | DELETE | `/go-api/internal/admin/system/user` | 删除用户 |
-| User | GET | `/go-api/internal/admin/system/user/role` | 用户角色 ID 列表 |
-| User | PUT | `/go-api/internal/admin/system/user/role` | 更新用户角色（会保留 `base` 角色） |
-| User | PUT | `/go-api/internal/admin/system/user/password/reset` | 管理员重置密码 |
-| User | PUT | `/go-api/internal/admin/system/user/tfa/disable` | 管理员关闭 TFA |
-| User | GET | `/go-api/internal/admin/system/user/passkeys` | 查询用户 Passkey |
-| User | DELETE | `/go-api/internal/admin/system/user/passkey` | 删除单个用户 Passkey |
-| User | DELETE | `/go-api/internal/admin/system/user/passkeys` | 删除用户全部 Passkey |
-| Record | GET | `/go-api/internal/admin/system/record/paginate` | 操作记录分页 |
-| Record | GET | `/go-api/internal/admin/system/record/detail` | 操作记录详情 |
-
-##### 核心数据结构（当前实现字段）
-
-`User` 分页/详情项：
-```json
-{
-  "id": 1,
-  "email": "admin@example.com",
-  "phone": "+8613800000000",
-  "totp_enabled": false,
-  "passkey_count": 2,
-  "user_name": "管理员",
-  "status": 1,
-  "avatar": "",
-  "created_at": "2026-02-06T10:00:00+08:00"
-}
-```
-
-说明：第三方账号绑定已迁移到独立的 `sys_user_identity` 表中，Passkey 凭证存放在 `sys_user_passkey` 表中，`passkey_count` 表示当前用户已注册的 Passkey 数量。
-
-`Role` 列表项（`/role/list`）：
-```json
-{
-  "id": 1,
-  "name": "base",
-  "description": "基础角色"
-}
-```
-
-`Permission` 项（`/permission/paginate`、`/permission`）：
-```json
-{
-  "ID": 1,
-  "CreatedAt": "2026-02-06T10:00:00+08:00",
-  "UpdatedAt": "2026-02-06T10:00:00+08:00",
-  "DeletedAt": null,
-  "name": "user:list",
-  "type": "api",
-  "method": "GET",
-  "path": "/go-api/internal/admin/system/user/paginate",
-  "description": "查询用户列表",
-  "group": "user"
-}
-```
-
-`Menu` 项（`/menu/list`、`/menu`）：
-```json
-{
-  "ID": 1,
-  "CreatedAt": "2026-02-06T10:00:00+08:00",
-  "UpdatedAt": "2026-02-06T10:00:00+08:00",
-  "DeletedAt": null,
-  "name": "系统管理",
-  "path": "/system",
-  "permission_id": 10,
-  "parent_id": 0,
-  "icon": "setting",
-  "sort": 1,
-  "children": []
-}
-```
-
-`OperationRecord` 项（`/record/paginate`）：
-```json
-{
-  "ID": 1024,
-  "CreatedAt": "2026-02-06T10:00:00+08:00",
-  "UpdatedAt": "2026-02-06T10:00:01+08:00",
-  "DeletedAt": null,
-  "ip": "127.0.0.1",
-  "method": "POST",
-  "path": "/go-api/internal/admin/system/user",
-  "status": 200,
-  "latency": 0.031,
-  "agent": "Mozilla/5.0",
-  "error_message": "",
-  "user_id": 1,
-  "user_name": "admin",
-  "params": "{\"user_name\":\"demo\"}",
-  "resp": "{\"code\":0,\"msg\":\"OK\"}",
-  "trace_id": "trace-xxx"
-}
-```
-
-`OperationRecordDetail`（`/record/detail`）：
-```json
-{
-  "id": 1024,
-  "method": "POST",
-  "path": "/go-api/internal/admin/system/user",
-  "ip": "127.0.0.1",
-  "status": 0,
-  "user_id": 1,
-  "user_name": "admin",
-  "trace_id": "trace-xxx",
-  "created_at": "2026-02-06T10:00:00+08:00",
-  "latency": 0.031,
-  "agent": "Mozilla/5.0",
-  "error_message": "",
-  "params": {
-    "user_name": "demo"
-  },
-  "resp": {
-    "code": 0,
-    "msg": "OK"
-  }
-}
-```
-
-##### 分页说明（系统管理）
-
-- `user/role/permission` 使用 `page` + `page_size`（默认 `1` + `10`，最大 `100`），返回 `{ "list": [...], "total": n }`
-- `record` 使用 `page` + `size`（默认 `1` + `10`，最大 `100`），返回 `{ "items": [...], "total": n }`
-
-> 更完整的请求参数、响应示例和模块错误码请查看 `docs/Admin-System-Management-zh.md`。
->
-> 管理端鉴权接口请查看 `docs/Admin-Auth-zh.md`。其中密码相关字段（`/go-api/internal/admin/auth/token` 的 `grant_type=password`、`/password/reset`、`/password`、以及未开启 TFA 时的 `/identifier`）前端必须传 `md5(明文密码)`。
-
-#### 健康检查端点
-
-##### 外部健康检查
-
-**GET** `/go-api/external/service/ping`
-
-检查外部服务健康状态。
-
-**响应:**
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": null
-}
-```
-
-##### 内部健康检查
-
-**GET** `/go-api/internal/service/ping`
-
-检查内部服务健康状态。
-
-**响应:**
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": null
-}
-```
-
-### 响应格式
-
-所有API响应都遵循此标准格式：
-
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": {
-    // 响应数据
-  }
-}
-```
-
-#### 响应代码
-
-| 代码 | 消息 | 描述 |
-|------|------|------|
-| 0 | ok | 成功 |
-| -1 | System is busy | 系统错误 |
-| 400 | Request parameter error | 参数无效 |
-| 500 | fail | 服务器错误 |
-| 10001 | Unauthorized | 需要认证 |
-| 10002 | Authorization has failed | 认证失败 |
-| 10003 | Authorization failed | 授权错误 |
-| 10004 | Application does not exist or account info error | 应用不存在 |
-| 10005 | Application already exists | 应用已存在 |
-| 10006 | User does not exist | 用户不存在 |
-
-### 错误处理
-
-#### 验证错误
-
-当请求验证失败时：
-
-```json
-{
-  "code": 400,
-  "message": "Request parameter error",
-  "data": null
-}
-```
-
-#### 认证错误
-
-当认证失败时：
-
-```json
-{
-  "code": 10001,
-  "message": "Unauthorized",
-  "data": null
-}
-```
-
-#### 服务器错误
-
-当服务器遇到错误时：
-
-```json
-{
-  "code": 500,
-  "message": "fail",
-  "data": null
-}
-```
-
-### 速率限制
-
-API请求受到速率限制以防止滥用：
-
-- **限制**: 每IP每小时1000个请求
-- **头部**: 速率限制信息在响应头中返回
-  - `X-RateLimit-Limit`: 请求限制
-  - `X-RateLimit-Remaining`: 剩余请求数
-  - `X-RateLimit-Reset`: 重置时间（Unix时间戳）
-
-### 分页
-
-对于返回列表的端点，使用分页参数：
-
-**查询参数:**
-```
-通用: page: int (默认: 1) - 页码
-通用: page_size/size: int (默认: 10, 最大: 100) - 每页项目数
-```
-
-**响应格式:**
-```json
-{
-  "code": 0,
-  "message": "ok",
-  "data": {
-    "list": [...],
-    "total": 100
-  }
-}
-```
-
-部分模块返回 `{ "items": [...], "total": n }`。
-
-### API版本控制
-
-API使用URL版本控制：
-
-- 当前版本: `v1`（默认）
-- 未来版本: `/go-api/v2/...`
-
-### 使用Postman测试
-
-#### 环境变量
-
-在Postman中设置这些变量：
-
-```
-base_url: http://localhost:8080
-jwt_token: (从auth/token端点获取)
-```
-
-### SDK示例
-
-#### JavaScript/Node.js
-
-```javascript
-const axios = require('axios');
-
-class GoAPIClient {
-  constructor(baseURL, appId, appSecret) {
-    this.baseURL = baseURL;
-    this.appId = appId;
-    this.appSecret = appSecret;
-    this.token = null;
-  }
-
-  async authenticate() {
-    const response = await axios.post(`${this.baseURL}/go-api/external/service/auth/token`, 
-      new URLSearchParams({
-        app_id: this.appId,
-        app_secret: this.appSecret
-      })
-    );
-    
-    if (response.data.code === 0) {
-      this.token = response.data.data.token;
-      return this.token;
-    }
-    throw new Error('认证失败');
-  }
-
-  async createApp(appData) {
-    if (!this.token) {
-      await this.authenticate();
-    }
-
-    const response = await axios.post(
-      `${this.baseURL}/go-api/external/service/auth/app`,
-      appData,
-      {
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    return response.data;
-  }
-}
-
-// 使用方法
-const client = new GoAPIClient('http://localhost:8080', 'your_app_id', 'your_app_secret');
-```
+- [Development Guide](Development-Guide.md)
+- [Deployment Guide](Deployment-Guide.md)
+- [Admin Auth](Admin-Auth.md)
+- [Admin System Management](Admin-System-Management.md)

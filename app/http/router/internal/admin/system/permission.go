@@ -2,8 +2,8 @@ package system
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/seakee/go-api/app/http"
-	"github.com/seakee/go-api/app/http/controller/admin/system/permission"
+	"github.com/seakee/dudu-admin-api/app/http"
+	"github.com/seakee/dudu-admin-api/app/http/controller/admin/system/permission"
 )
 
 func registerPermissionRoutes(api *gin.RouterGroup, ctx *http.Context) {

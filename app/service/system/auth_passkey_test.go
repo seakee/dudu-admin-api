@@ -9,9 +9,9 @@ import (
 
 	"github.com/go-webauthn/webauthn/protocol"
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/seakee/go-api/app/config"
-	systemModel "github.com/seakee/go-api/app/model/system"
-	"github.com/seakee/go-api/app/pkg/e"
+	"github.com/seakee/dudu-admin-api/app/config"
+	systemModel "github.com/seakee/dudu-admin-api/app/model/system"
+	"github.com/seakee/dudu-admin-api/app/pkg/e"
 	"gorm.io/gorm"
 )
 
