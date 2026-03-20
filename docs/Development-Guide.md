@@ -22,6 +22,120 @@ make build
 make run
 ```
 
+### One-command initialization (database + super admin seed data)
+
+`bin/data/sql/{dialect}/init.sql` already contains full schema and admin seed data. Use the script below to bootstrap the project:
+
+```bash
+# Run inside repository: interactive wizard by default
+./scripts/init-project.sh
+
+# Remote download and run (no pre-clone required)
+curl -fsSL https://raw.githubusercontent.com/seakee/dudu-admin-api/main/scripts/init-project.sh -o init-project.sh
+bash init-project.sh
+
+# Non-interactive mode (CI/automation)
+bash init-project.sh --non-interactive --yes \
+  --dialect postgres \
+  --db-host 127.0.0.1 --db-port 5432 \
+  --db-name dudu-admin-api --db-user dudu-admin-api --db-password 'your-password'
+```
+
+If repository already exists in target path, append:
+
+```bash
+--project-dir ./dudu-admin-api --skip-clone
+```
+
+The script generates a minimal runnable config file (`bin/configs/{RUN_ENV}.json`) including:
+- `system.name`
+- `system.route_prefix`
+- `system.run_mode`
+- `system.http_port`
+- `system.api_prefix`
+- `system.default_lang`
+- `system.jwt_secret`
+- `system.admin.jwt_secret`
+
+Notes:
+- The effective route prefix uses `system.route_prefix` first and falls back to `system.api_prefix`.
+- When `--admin-password` is provided, the script stores `bcrypt(md5(plain_password))` and clears the preset TOTP state for `user_id=1`.
+- Before executing `init.sql`, the script rewrites seeded RBAC permission paths to the effective prefix.
+- If `--config` writes to a custom path, start the service with `APP_CONFIG_PATH=/path/to/config.json`.
+
+### CI/Automation (Non-interactive)
+
+PostgreSQL example:
+
+```bash
+bash init-project.sh \
+  --non-interactive --yes \
+  --project-dir ./dudu-admin-api \
+  --repo-url https://github.com/seakee/dudu-admin-api.git \
+  --repo-ref main \
+  --env local \
+  --dialect postgres \
+  --name dudu-admin-api \
+  --route-prefix dudu-admin-api \
+  --run-mode release \
+  --http-port :8080 \
+  --api-prefix dudu-admin-api \
+  --default-lang zh-CN \
+  --db-host 127.0.0.1 \
+  --db-port 5432 \
+  --db-name dudu-admin-api \
+  --db-user dudu-admin-api \
+  --db-password 'CHANGE_ME_DB_PASSWORD' \
+  --db-ssl-mode disable \
+  --db-timezone Asia/Shanghai \
+  --redis-host 127.0.0.1:6379 \
+  --redis-auth '' \
+  --redis-db 0 \
+  --admin-email admin@example.com \
+  --admin-phone 13800000000 \
+  --admin-username admin \
+  --admin-password 'CHANGE_ME_ADMIN_PASSWORD'
+```
+
+MySQL example:
+
+```bash
+bash init-project.sh \
+  --non-interactive --yes \
+  --project-dir ./dudu-admin-api \
+  --repo-url https://github.com/seakee/dudu-admin-api.git \
+  --repo-ref main \
+  --env local \
+  --dialect mysql \
+  --name dudu-admin-api \
+  --route-prefix dudu-admin-api \
+  --run-mode release \
+  --http-port :8080 \
+  --api-prefix dudu-admin-api \
+  --default-lang zh-CN \
+  --db-host 127.0.0.1 \
+  --db-port 3306 \
+  --db-name dudu-admin-api \
+  --db-user dudu-admin-api \
+  --db-password 'CHANGE_ME_DB_PASSWORD' \
+  --redis-host 127.0.0.1:6379 \
+  --redis-auth '' \
+  --redis-db 0 \
+  --admin-email admin@example.com \
+  --admin-phone 13800000000 \
+  --admin-username admin \
+  --admin-password 'CHANGE_ME_ADMIN_PASSWORD'
+```
+
+If repository already exists in target path, append:
+
+```bash
+--project-dir ./dudu-admin-api --skip-clone
+```
+
+Note: `init.sql` resets related tables (includes `DROP TABLE`). Do not run directly in production.
+If the PostgreSQL application database is already provisioned but the managed environment does not expose the `postgres` maintenance database, the script checks target-database connectivity first. If you explicitly do not want the script to attempt database creation, append `--no-create-db`.
+
 ## Runtime Configuration
 
 ### Config Files
@@ -33,6 +147,7 @@ make run
 ### Environment Variables
 
 - `RUN_ENV`: selects `bin/configs/{RUN_ENV}.json`, default `local`
+- `APP_CONFIG_PATH`: explicit config file path, higher priority than `RUN_ENV`
 - `APP_NAME`: overrides `system.name` at runtime
 
 ## Architecture and Layering
@@ -59,7 +174,7 @@ Direct `db.WithContext(ctx)...` in repository is only for:
 
 ## Route Structure
 
-The default API prefix is `dudu-admin-api` (`system.api_prefix`).
+The effective route prefix uses `system.route_prefix` first and falls back to `system.api_prefix`; the default value is `dudu-admin-api`.
 
 - `/{apiPrefix}/external/...`
 - `/{apiPrefix}/internal/...`

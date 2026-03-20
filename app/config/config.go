@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	envKey  = "RUN_ENV"  // Environment variable key for the running environment
-	nameKey = "APP_NAME" // Environment variable key for the application name
+	envKey        = "RUN_ENV"         // Environment variable key for the running environment
+	nameKey       = "APP_NAME"        // Environment variable key for the application name
+	configPathKey = "APP_CONFIG_PATH" // Environment variable key for the explicit config path
 )
 
 var config *Config // Global configuration variable
@@ -46,11 +47,12 @@ type Config struct {
 //   - error: An error if any occurred during the loading process.
 func LoadConfig() (*Config, error) {
 	var (
-		runEnv     string
-		appName    string
-		rootPath   string
-		cfgContent []byte
-		err        error
+		runEnv         string
+		appName        string
+		configFilePath string
+		rootPath       string
+		cfgContent     []byte
+		err            error
 	)
 
 	// Get the runtime environment from environment variable, default to "local"
@@ -65,8 +67,11 @@ func LoadConfig() (*Config, error) {
 		log.Fatalf("Unable to get working directory: %v", err)
 	}
 
-	// Construct the configuration file path
-	configFilePath := filepath.Join(rootPath, "bin", "configs", fmt.Sprintf("%s.json", runEnv))
+	configFilePath = os.Getenv(configPathKey)
+	if configFilePath == "" {
+		configFilePath = filepath.Join(rootPath, "bin", "configs", fmt.Sprintf("%s.json", runEnv))
+	}
+
 	cfgContent, err = os.ReadFile(configFilePath)
 	if err != nil {
 		return nil, err

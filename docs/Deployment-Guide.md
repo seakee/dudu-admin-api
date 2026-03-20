@@ -21,6 +21,7 @@ Key fields to review in `bin/configs/prod.json`:
 - `system.run_mode` (`release`)
 - `system.http_port`
 - `system.jwt_secret`
+- `system.route_prefix`
 - `system.api_prefix`
 - `databases[*]`
 - `redis[*]`
@@ -90,7 +91,7 @@ Internal health endpoint:
 curl -i http://127.0.0.1:8080/dudu-admin-api/internal/ping
 ```
 
-If `api_prefix` is customized, replace `/dudu-admin-api`.
+If the effective route prefix is customized (`system.route_prefix` first, otherwise `system.api_prefix`), replace `/dudu-admin-api`.
 
 ## Logging and Monitoring
 

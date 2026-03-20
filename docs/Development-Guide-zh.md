@@ -22,6 +22,120 @@ make build
 make run
 ```
 
+### 一键初始化（含数据库与超级管理员种子数据）
+
+`bin/data/sql/{dialect}/init.sql` 已包含完整建表与后台超级管理员初始化数据。可使用脚本一键初始化：
+
+```bash
+# 仓库内执行：默认进入交互式向导，生成最小可运行配置并初始化数据库
+./scripts/init-project.sh
+
+# 远程下载并执行（不需要提前 clone 仓库）
+curl -fsSL https://raw.githubusercontent.com/seakee/dudu-admin-api/main/scripts/init-project.sh -o init-project.sh
+bash init-project.sh
+
+# 非交互模式（CI/自动化）
+bash init-project.sh --non-interactive --yes \
+  --dialect postgres \
+  --db-host 127.0.0.1 --db-port 5432 \
+  --db-name dudu-admin-api --db-user dudu-admin-api --db-password 'your-password'
+```
+
+如目标目录已存在仓库，可追加：
+
+```bash
+--project-dir ./dudu-admin-api --skip-clone
+```
+
+脚本会生成最小化可执行配置文件（`bin/configs/{RUN_ENV}.json`），并设置：
+- `system.name`
+- `system.route_prefix`
+- `system.run_mode`
+- `system.http_port`
+- `system.api_prefix`
+- `system.default_lang`
+- `system.jwt_secret`
+- `system.admin.jwt_secret`
+
+补充说明：
+- 生效路由前缀遵循 `system.route_prefix` 优先、`system.api_prefix` 回退的规则。
+- 若设置 `--admin-password`，脚本会写入 `bcrypt(md5(明文密码))`，并清理 `user_id=1` 的预置 TOTP 状态。
+- 初始化脚本会在执行 `init.sql` 前，将种子 RBAC 权限路径改写为当前生效前缀。
+- 若通过 `--config` 写入自定义路径，请使用 `APP_CONFIG_PATH=/path/to/config.json` 启动服务。
+
+### CI/自动化（非交互）
+
+PostgreSQL 示例：
+
+```bash
+bash init-project.sh \
+  --non-interactive --yes \
+  --project-dir ./dudu-admin-api \
+  --repo-url https://github.com/seakee/dudu-admin-api.git \
+  --repo-ref main \
+  --env local \
+  --dialect postgres \
+  --name dudu-admin-api \
+  --route-prefix dudu-admin-api \
+  --run-mode release \
+  --http-port :8080 \
+  --api-prefix dudu-admin-api \
+  --default-lang zh-CN \
+  --db-host 127.0.0.1 \
+  --db-port 5432 \
+  --db-name dudu-admin-api \
+  --db-user dudu-admin-api \
+  --db-password 'CHANGE_ME_DB_PASSWORD' \
+  --db-ssl-mode disable \
+  --db-timezone Asia/Shanghai \
+  --redis-host 127.0.0.1:6379 \
+  --redis-auth '' \
+  --redis-db 0 \
+  --admin-email admin@example.com \
+  --admin-phone 13800000000 \
+  --admin-username admin \
+  --admin-password 'CHANGE_ME_ADMIN_PASSWORD'
+```
+
+MySQL 示例：
+
+```bash
+bash init-project.sh \
+  --non-interactive --yes \
+  --project-dir ./dudu-admin-api \
+  --repo-url https://github.com/seakee/dudu-admin-api.git \
+  --repo-ref main \
+  --env local \
+  --dialect mysql \
+  --name dudu-admin-api \
+  --route-prefix dudu-admin-api \
+  --run-mode release \
+  --http-port :8080 \
+  --api-prefix dudu-admin-api \
+  --default-lang zh-CN \
+  --db-host 127.0.0.1 \
+  --db-port 3306 \
+  --db-name dudu-admin-api \
+  --db-user dudu-admin-api \
+  --db-password 'CHANGE_ME_DB_PASSWORD' \
+  --redis-host 127.0.0.1:6379 \
+  --redis-auth '' \
+  --redis-db 0 \
+  --admin-email admin@example.com \
+  --admin-phone 13800000000 \
+  --admin-username admin \
+  --admin-password 'CHANGE_ME_ADMIN_PASSWORD'
+```
+
+若仓库已在目标目录，可追加：
+
+```bash
+--project-dir ./dudu-admin-api --skip-clone
+```
+
+注意：`init.sql` 会重置相关表（包含 `DROP TABLE`），请勿在生产环境直接执行。
+若 PostgreSQL 应用库已预先创建、但托管环境不开放 `postgres` 维护库，脚本会优先检测目标库可连通性；若你明确不希望尝试建库，也可追加 `--no-create-db`。
+
 ## 运行配置
 
 ### 配置文件
@@ -33,6 +147,7 @@ make run
 ### 环境变量
 
 - `RUN_ENV`：选择 `bin/configs/{RUN_ENV}.json`，默认 `local`
+- `APP_CONFIG_PATH`：显式配置文件路径，优先级高于 `RUN_ENV`
 - `APP_NAME`：运行时覆盖 `system.name`
 
 ## 架构与分层
@@ -59,7 +174,7 @@ Repository 内直接 `db.WithContext(ctx)...` 仅用于：
 
 ## 路由结构
 
-默认 API 前缀为 `dudu-admin-api`（`system.api_prefix`）。
+生效路由前缀优先使用 `system.route_prefix`，若为空则回退到 `system.api_prefix`；默认值为 `dudu-admin-api`。
 
 - `/{apiPrefix}/external/...`
 - `/{apiPrefix}/internal/...`
