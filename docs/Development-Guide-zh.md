@@ -61,6 +61,7 @@ bash init-project.sh --non-interactive --yes \
 - 生效路由前缀遵循 `system.route_prefix` 优先、`system.api_prefix` 回退的规则。
 - 若设置 `--admin-password`，脚本会写入 `bcrypt(md5(明文密码))`，并清理 `user_id=1` 的预置 TOTP 状态。
 - 初始化脚本会在执行 `init.sql` 前，将种子 RBAC 权限路径改写为当前生效前缀。
+- 若通过 `--config` 写入自定义路径，请使用 `APP_CONFIG_PATH=/path/to/config.json` 启动服务。
 
 ### CI/自动化（非交互）
 
@@ -146,6 +147,7 @@ bash init-project.sh \
 ### 环境变量
 
 - `RUN_ENV`：选择 `bin/configs/{RUN_ENV}.json`，默认 `local`
+- `APP_CONFIG_PATH`：显式配置文件路径，优先级高于 `RUN_ENV`
 - `APP_NAME`：运行时覆盖 `system.name`
 
 ## 架构与分层

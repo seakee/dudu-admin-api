@@ -40,6 +40,7 @@ bash init-project.sh
 
 脚本支持自动 clone 仓库、生成最小可执行配置文件（`bin/configs/{RUN_ENV}.json`）、初始化数据库表与种子数据，并初始化超级管理员记录。
 若通过 `--admin-password` 覆盖 `user_id=1`，脚本会按后台登录口径写入密码，并同步清理预置 TOTP 状态。
+若通过 `--config` 写入自定义路径，请使用 `APP_CONFIG_PATH=/path/to/config.json` 启动服务。
 
 ### 远程初始化（非交互模式）
 
@@ -105,6 +106,7 @@ ls -l ./dudu-admin-api/bin/data/sql/mysql/init.sql
 
 | 变量 | 说明 | 默认值 |
 |---|---|---|
+| `APP_CONFIG_PATH` | 显式配置文件路径，优先级高于 `RUN_ENV` | 空 |
 | `RUN_ENV` | 读取 `bin/configs/{RUN_ENV}.json` | `local` |
 | `APP_NAME` | 运行时覆盖 `system.name` | 使用配置文件值 |
 

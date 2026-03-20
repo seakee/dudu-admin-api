@@ -61,6 +61,7 @@ Notes:
 - The effective route prefix uses `system.route_prefix` first and falls back to `system.api_prefix`.
 - When `--admin-password` is provided, the script stores `bcrypt(md5(plain_password))` and clears the preset TOTP state for `user_id=1`.
 - Before executing `init.sql`, the script rewrites seeded RBAC permission paths to the effective prefix.
+- If `--config` writes to a custom path, start the service with `APP_CONFIG_PATH=/path/to/config.json`.
 
 ### CI/Automation (Non-interactive)
 
@@ -146,6 +147,7 @@ If the PostgreSQL application database is already provisioned but the managed en
 ### Environment Variables
 
 - `RUN_ENV`: selects `bin/configs/{RUN_ENV}.json`, default `local`
+- `APP_CONFIG_PATH`: explicit config file path, higher priority than `RUN_ENV`
 - `APP_NAME`: overrides `system.name` at runtime
 
 ## Architecture and Layering

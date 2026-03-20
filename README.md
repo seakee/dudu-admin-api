@@ -41,6 +41,7 @@ bash init-project.sh
 
 The script can clone the repository automatically, generate a minimal runnable config (`bin/configs/{RUN_ENV}.json`), initialize database tables/data, and seed super-admin records.
 When `--admin-password` overrides `user_id=1`, the script stores the password using the admin login credential format and clears the preset TOTP state.
+If `--config` writes to a custom path, start the service with `APP_CONFIG_PATH=/path/to/config.json`.
 
 ### Remote Bootstrap (Non-interactive)
 
@@ -106,6 +107,7 @@ ls -l ./dudu-admin-api/bin/data/sql/mysql/init.sql
 
 | Variable | Description | Default |
 |---|---|---|
+| `APP_CONFIG_PATH` | Explicit config file path, higher priority than `RUN_ENV` | empty |
 | `RUN_ENV` | Config profile (`bin/configs/{RUN_ENV}.json`) | `local` |
 | `APP_NAME` | Override `system.name` at runtime | from config |
 
