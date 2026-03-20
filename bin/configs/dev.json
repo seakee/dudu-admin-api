@@ -1,7 +1,7 @@
 {
   "system": {
     "name": "dudu-admin-api",
-    "route_prefix": "go-api",
+    "route_prefix": "dudu-admin-api",
     "run_mode": "debug",
     "http_port": ":8080",
     "api_prefix": "dudu-admin-api",
