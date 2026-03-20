@@ -31,6 +31,74 @@ make build
 make run
 ```
 
+### 远程初始化（交互模式）
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/seakee/dudu-admin-api/main/scripts/init-project.sh -o init-project.sh
+bash init-project.sh
+```
+
+脚本支持自动 clone 仓库、生成最小可执行配置文件（`bin/configs/{RUN_ENV}.json`）、初始化数据库表与种子数据，并初始化超级管理员记录。
+若通过 `--admin-password` 覆盖 `user_id=1`，脚本会按后台登录口径写入密码，并同步清理预置 TOTP 状态。
+
+### 远程初始化（非交互模式）
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/seakee/dudu-admin-api/main/scripts/init-project.sh -o init-project.sh
+bash init-project.sh --non-interactive --yes \
+  --dialect postgres \
+  --db-host 127.0.0.1 --db-port 5432 \
+  --db-name dudu-admin-api --db-user dudu-admin-api --db-password 'CHANGE_ME_DB_PASSWORD'
+```
+
+说明：若目标目录已存在仓库，可追加 `--project-dir ./dudu-admin-api --skip-clone` 禁止脚本自动 clone。
+
+### 初始化失败排查
+
+数据库连通性（PostgreSQL，优先检查目标库）：
+
+```bash
+PGPASSWORD='YOUR_DB_PASSWORD' psql -h 127.0.0.1 -p 5432 -U dudu-admin-api -d dudu-admin-api -c 'select current_database();'
+```
+
+自动建库链路检查（PostgreSQL，仅当目标库不存在且需要脚本自动建库时）：
+
+```bash
+PGPASSWORD='YOUR_DB_PASSWORD' psql -h 127.0.0.1 -p 5432 -U dudu-admin-api -d postgres -c 'select version();'
+```
+
+数据库连通性（MySQL）：
+
+```bash
+mysql -h 127.0.0.1 -P 3306 -u dudu-admin-api -p -e 'select version();'
+```
+
+数据库权限检查（PostgreSQL，仅当依赖脚本自动建库时）：
+
+```bash
+PGPASSWORD='YOUR_DB_PASSWORD' psql -h 127.0.0.1 -p 5432 -U dudu-admin-api -d postgres -c 'create database dudu_admin_api_perm_test;'
+PGPASSWORD='YOUR_DB_PASSWORD' psql -h 127.0.0.1 -p 5432 -U dudu-admin-api -d postgres -c 'drop database if exists dudu_admin_api_perm_test;'
+```
+
+数据库权限检查（MySQL）：
+
+```bash
+mysql -h 127.0.0.1 -P 3306 -u dudu-admin-api -p -e 'create database if not exists dudu_admin_api_perm_test; drop database dudu_admin_api_perm_test;'
+```
+
+Redis 连通性：
+
+```bash
+redis-cli -h 127.0.0.1 -p 6379 ping
+```
+
+SQL 文件可访问性：
+
+```bash
+ls -l ./dudu-admin-api/bin/data/sql/postgres/init.sql
+ls -l ./dudu-admin-api/bin/data/sql/mysql/init.sql
+```
+
 ## 运行配置
 
 ### 环境变量
@@ -46,9 +114,19 @@ make run
 - `bin/configs/dev.json`
 - `bin/configs/prod.json`
 
+初始化脚本会生成最小必需字段，包括：
+- `system.name`
+- `system.route_prefix`
+- `system.run_mode`
+- `system.http_port`
+- `system.api_prefix`
+- `system.default_lang`
+- `system.jwt_secret`
+- `system.admin.jwt_secret`
+
 ### 路由前缀
 
-`system.api_prefix` 控制 API 前缀。  
+生效路由前缀优先使用 `system.route_prefix`，若为空则回退到 `system.api_prefix`。  
 默认值: `dudu-admin-api`。
 
 ## 架构说明

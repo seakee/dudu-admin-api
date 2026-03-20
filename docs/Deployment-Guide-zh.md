@@ -21,6 +21,7 @@ cp bin/configs/local.json.default bin/configs/prod.json
 - `system.run_mode`（`release`）
 - `system.http_port`
 - `system.jwt_secret`
+- `system.route_prefix`
 - `system.api_prefix`
 - `databases[*]`
 - `redis[*]`
@@ -90,7 +91,7 @@ curl -i http://127.0.0.1:8080/dudu-admin-api/external/ping
 curl -i http://127.0.0.1:8080/dudu-admin-api/internal/ping
 ```
 
-若你自定义了 `api_prefix`，将路径中的 `/dudu-admin-api` 替换为实际值。
+若你自定义了生效路由前缀（`system.route_prefix` 优先，否则 `system.api_prefix`），将路径中的 `/dudu-admin-api` 替换为实际值。
 
 ## 日志与监控
 
