@@ -19,7 +19,8 @@ print_success() { printf "${GREEN}%-9s${NC} %s\n" "[SUCCESS]" "$1"; }
 print_warning() { printf "${YELLOW}%-9s${NC} %s\n" "[WARNING]" "$1"; }
 print_error() { printf "${RED}%-9s${NC} %s\n" "[ERROR]" "$1"; }
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_PATH="${BASH_SOURCE[0]:-$0}"
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
 CURRENT_DIR="$(pwd)"
 PROJECT_ROOT=""
 
@@ -77,8 +78,11 @@ tmp_files=()
 
 cleanup() {
     for f in "${tmp_files[@]:-}"; do
-        [[ -n "$f" && -f "$f" ]] && rm -f "$f"
+        if [[ -n "$f" && -f "$f" ]]; then
+            rm -f "$f"
+        fi
     done
+    return 0
 }
 trap cleanup EXIT
 
@@ -145,7 +149,7 @@ require_cmd() {
 
 escape_sql_string() {
     local input="$1"
-    printf "%s" "${input//\'/\'\'}"
+    printf "%s" "$input" | sed "s/'/''/g"
 }
 
 trim_slashes() {
@@ -502,10 +506,18 @@ collect_inputs() {
     fi
 
     if [[ -z "$SYSTEM_JWT_SECRET" ]]; then
-        SYSTEM_JWT_SECRET="$(generate_secret 64)"
+        if [[ "$DRY_RUN" == true ]]; then
+            SYSTEM_JWT_SECRET="DRY_RUN_SYSTEM_JWT_SECRET"
+        else
+            SYSTEM_JWT_SECRET="$(generate_secret 64)"
+        fi
     fi
     if [[ -z "$ADMIN_JWT_SECRET" ]]; then
-        ADMIN_JWT_SECRET="$(generate_secret 64)"
+        if [[ "$DRY_RUN" == true ]]; then
+            ADMIN_JWT_SECRET="DRY_RUN_ADMIN_JWT_SECRET"
+        else
+            ADMIN_JWT_SECRET="$(generate_secret 64)"
+        fi
     fi
 
     if [[ "$INTERACTIVE" != true ]]; then
@@ -567,6 +579,11 @@ resolve_paths() {
 }
 
 write_config() {
+    if [[ "$DRY_RUN" == true ]]; then
+        print_info "[dry-run] write config to $CONFIG_PATH"
+        return
+    fi
+
     local tmp_go
     tmp_go="$(make_temp_go_file)"
     tmp_files+=("$tmp_go")
@@ -822,10 +839,6 @@ func main() {
 EOF
 
     mkdir -p "$(dirname "$CONFIG_PATH")"
-    if [[ "$DRY_RUN" == true ]]; then
-        print_info "[dry-run] write config to $CONFIG_PATH"
-        return
-    fi
 
     CFG_OUT_PATH="$CONFIG_PATH" \
     CFG_DIALECT="$DIALECT" \
@@ -1066,7 +1079,13 @@ main() {
     update_super_admin_if_needed
 
     print_success "Project initialization completed"
-    print_info "Run with: cd $PROJECT_ROOT && RUN_ENV=$RUN_ENV make run"
+    if [[ "$CONFIG_PATH" == "$PROJECT_ROOT/bin/configs/${RUN_ENV}.json" ]]; then
+        print_info "Run with: cd $PROJECT_ROOT && RUN_ENV=$RUN_ENV make run"
+    else
+        print_info "Run with: cd $PROJECT_ROOT && APP_CONFIG_PATH=$CONFIG_PATH make run"
+    fi
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]:-$0}" == "$0" ]]; then
+    main "$@"
+fi
