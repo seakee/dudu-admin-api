@@ -21,7 +21,7 @@
         "max_requests": 20
       },
       "oauth": {
-        "redirect_url": "http://127.0.0.1:3000/oauth",
+        "redirect_url": "http://127.0.0.1:3000/auth/callback",
         "feishu": {
           "client_id": "cli_xxx",
           "client_secret": "xxxx",
