@@ -13,6 +13,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const (
@@ -21,7 +22,17 @@ const (
 	configPathKey = "APP_CONFIG_PATH" // Environment variable key for the explicit config path
 )
 
-var config *Config // Global configuration variable
+var (
+	config *Config // Global configuration variable
+
+	placeholderConfigValues = map[string]struct{}{
+		"db_host":                 {},
+		"db_username":             {},
+		"db_password":             {},
+		"mongodb://db_host:27017": {},
+		"host:6379":               {},
+	}
+)
 
 // Config represents the entire application configuration.
 type Config struct {
@@ -108,12 +119,6 @@ func LoadConfig() (*Config, error) {
 }
 
 // checkConfig performs validation checks on the loaded configuration.
-// Currently, it only checks if the JwtSecret is set.
-//
-// Parameters:
-//   - conf: *Config - A pointer to the configuration structure to check.
-//
-// The function will panic if the JwtSecret is empty.
 func checkConfig(conf *Config) error {
 	if conf.System.JwtSecret == "" {
 		return fmt.Errorf("jwtSecret cannot be null")
@@ -135,6 +140,90 @@ func checkConfig(conf *Config) error {
 		return fmt.Errorf("TokenExpire cannot be less than or equal to zero")
 	}
 
+	if err := checkDatabases(conf.Databases); err != nil {
+		return err
+	}
+
+	if err := checkRedisConfigs(conf.Redis); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func checkDatabases(databases []Database) error {
+	for i, db := range databases {
+		if !db.Enable {
+			continue
+		}
+
+		prefix := fmt.Sprintf("databases[%d]", i)
+		if strings.TrimSpace(db.DbType) == "" {
+			return fmt.Errorf("%s.db_type cannot be null", prefix)
+		}
+		if strings.TrimSpace(db.DbName) == "" {
+			return fmt.Errorf("%s.db_name cannot be null", prefix)
+		}
+		if err := requireConfigValue(prefix+".db_host", db.DbHost); err != nil {
+			return err
+		}
+
+		switch db.DbType {
+		case "mysql", "postgres", "sqlserver":
+			if err := requireConfigValue(prefix+".db_username", db.DbUsername); err != nil {
+				return err
+			}
+			if err := requireConfigValue(prefix+".db_password", db.DbPassword); err != nil {
+				return err
+			}
+		default:
+			if err := rejectPlaceholderConfigValue(prefix+".db_username", db.DbUsername); err != nil {
+				return err
+			}
+			if err := rejectPlaceholderConfigValue(prefix+".db_password", db.DbPassword); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func checkRedisConfigs(redisConfigs []Redis) error {
+	for i, item := range redisConfigs {
+		if !item.Enable {
+			continue
+		}
+
+		prefix := fmt.Sprintf("redis[%d]", i)
+		if strings.TrimSpace(item.Name) == "" {
+			return fmt.Errorf("%s.name cannot be null", prefix)
+		}
+		if err := requireConfigValue(prefix+".host", item.Host); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func requireConfigValue(fieldName, value string) error {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return fmt.Errorf("%s cannot be null", fieldName)
+	}
+
+	return rejectPlaceholderConfigValue(fieldName, trimmed)
+}
+
+func rejectPlaceholderConfigValue(fieldName, value string) error {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return nil
+	}
+	if _, ok := placeholderConfigValues[trimmed]; ok {
+		return fmt.Errorf("%s contains template placeholder value %q", fieldName, trimmed)
+	}
 	return nil
 }
 

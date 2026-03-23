@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func TestLoadConfigUsesExplicitConfigPath(t *testing.T) {
@@ -72,6 +73,129 @@ func TestLoadConfigFallsBackToRunEnvPath(t *testing.T) {
 	}
 	if cfg.System.RoutePrefix != "dudu-admin-api" {
 		t.Fatalf("System.RoutePrefix = %q, want %q", cfg.System.RoutePrefix, "dudu-admin-api")
+	}
+}
+
+func TestCheckConfigRejectsInvalidDatabaseConfig(t *testing.T) {
+	tests := []struct {
+		name    string
+		mutate  func(cfg *Config)
+		wantErr string
+	}{
+		{
+			name: "missing enabled database host",
+			mutate: func(cfg *Config) {
+				cfg.Databases = []Database{{Enable: true, DbType: "postgres", DbName: "dudu-admin-api", DbUsername: "postgres", DbPassword: "secret"}}
+			},
+			wantErr: "databases[0].db_host cannot be null",
+		},
+		{
+			name: "placeholder database host",
+			mutate: func(cfg *Config) {
+				cfg.Databases = []Database{{Enable: true, DbType: "postgres", DbHost: "db_host", DbName: "dudu-admin-api", DbUsername: "postgres", DbPassword: "secret"}}
+			},
+			wantErr: "databases[0].db_host contains template placeholder value \"db_host\"",
+		},
+		{
+			name: "placeholder database username",
+			mutate: func(cfg *Config) {
+				cfg.Databases = []Database{{Enable: true, DbType: "postgres", DbHost: "127.0.0.1", DbName: "dudu-admin-api", DbUsername: "db_username", DbPassword: "secret"}}
+			},
+			wantErr: "databases[0].db_username contains template placeholder value \"db_username\"",
+		},
+		{
+			name: "placeholder database password",
+			mutate: func(cfg *Config) {
+				cfg.Databases = []Database{{Enable: true, DbType: "postgres", DbHost: "127.0.0.1", DbName: "dudu-admin-api", DbUsername: "postgres", DbPassword: "db_password"}}
+			},
+			wantErr: "databases[0].db_password contains template placeholder value \"db_password\"",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := validTestConfig()
+			tt.mutate(cfg)
+
+			err := checkConfig(cfg)
+			if err == nil {
+				t.Fatalf("checkConfig() error = nil, want %q", tt.wantErr)
+			}
+			if err.Error() != tt.wantErr {
+				t.Fatalf("checkConfig() error = %q, want %q", err.Error(), tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestCheckConfigRejectsInvalidRedisConfig(t *testing.T) {
+	tests := []struct {
+		name    string
+		mutate  func(cfg *Config)
+		wantErr string
+	}{
+		{
+			name: "missing enabled redis name",
+			mutate: func(cfg *Config) {
+				cfg.Redis = []Redis{{Enable: true, Host: "127.0.0.1:6379"}}
+			},
+			wantErr: "redis[0].name cannot be null",
+		},
+		{
+			name: "placeholder redis host",
+			mutate: func(cfg *Config) {
+				cfg.Redis = []Redis{{Enable: true, Name: "dudu-admin-api", Host: "host:6379"}}
+			},
+			wantErr: "redis[0].host contains template placeholder value \"host:6379\"",
+		},
+		{
+			name: "missing enabled redis host",
+			mutate: func(cfg *Config) {
+				cfg.Redis = []Redis{{Enable: true, Name: "dudu-admin-api"}}
+			},
+			wantErr: "redis[0].host cannot be null",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := validTestConfig()
+			tt.mutate(cfg)
+
+			err := checkConfig(cfg)
+			if err == nil {
+				t.Fatalf("checkConfig() error = nil, want %q", tt.wantErr)
+			}
+			if err.Error() != tt.wantErr {
+				t.Fatalf("checkConfig() error = %q, want %q", err.Error(), tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestCheckConfigAllowsEmptyAdminJWTSecret(t *testing.T) {
+	cfg := validTestConfig()
+	cfg.System.Admin.JwtSecret = ""
+
+	if err := checkConfig(cfg); err != nil {
+		t.Fatalf("checkConfig() error = %v, want nil", err)
+	}
+}
+
+func validTestConfig() *Config {
+	return &Config{
+		System: SysConfig{
+			Name:         "dudu-admin-api",
+			RunMode:      "debug",
+			HTTPPort:     ":8080",
+			ReadTimeout:  60 * time.Second,
+			WriteTimeout: 60 * time.Second,
+			Version:      "1.0.0",
+			DebugMode:    true,
+			DefaultLang:  "zh-CN",
+			JwtSecret:    "unit-test-secret",
+			TokenExpire:  time.Hour,
+		},
 	}
 }
 
