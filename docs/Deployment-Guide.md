@@ -22,7 +22,6 @@ Key fields to review in `bin/configs/prod.json`:
 - `system.http_port`
 - `system.jwt_secret`
 - `system.route_prefix`
-- `system.api_prefix`
 - `databases[*]`
 - `redis[*]`
 - `log`
@@ -82,16 +81,18 @@ If your team uses Compose, create a local compose file and keep it in your infra
 Public health endpoint:
 
 ```bash
-curl -i http://127.0.0.1:8080/dudu-admin-api/external/ping
+API_PREFIX="${API_PREFIX:-dudu-admin-api}"
+curl -i "http://127.0.0.1:8080/${API_PREFIX}/external/ping"
 ```
 
 Internal health endpoint:
 
 ```bash
-curl -i http://127.0.0.1:8080/dudu-admin-api/internal/ping
+API_PREFIX="${API_PREFIX:-dudu-admin-api}"
+curl -i "http://127.0.0.1:8080/${API_PREFIX}/internal/ping"
 ```
 
-If the effective route prefix is customized (`system.route_prefix` first, otherwise `system.api_prefix`), replace `/dudu-admin-api`.
+If `system.route_prefix` is customized, export `API_PREFIX` with that effective value before running the commands.
 
 ## Logging and Monitoring
 

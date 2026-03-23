@@ -46,7 +46,6 @@ SYSTEM_NAME="dudu-admin-api"
 SYSTEM_ROUTE_PREFIX="dudu-admin-api"
 SYSTEM_RUN_MODE="release"
 SYSTEM_HTTP_PORT=":8080"
-SYSTEM_API_PREFIX="dudu-admin-api"
 SYSTEM_DEFAULT_LANG="zh-CN"
 SYSTEM_READ_TIMEOUT="60"
 SYSTEM_WRITE_TIMEOUT="60"
@@ -116,7 +115,6 @@ Options:
   --route-prefix <value>     system.route_prefix
   --run-mode <debug|release> system.run_mode
   --http-port <value>        system.http_port
-  --api-prefix <value>       system.api_prefix
   --default-lang <value>     system.default_lang
   --jwt-secret <value>       system.jwt_secret
   --admin-jwt-secret <value> system.admin.jwt_secret
@@ -166,9 +164,6 @@ trim_slashes() {
 effective_route_prefix() {
     local prefix
     prefix="$(trim_slashes "$SYSTEM_ROUTE_PREFIX")"
-    if [[ -z "$prefix" ]]; then
-        prefix="$(trim_slashes "$SYSTEM_API_PREFIX")"
-    fi
     if [[ -z "$prefix" ]]; then
         prefix="dudu-admin-api"
     fi
@@ -403,7 +398,6 @@ parse_args() {
             --route-prefix) SYSTEM_ROUTE_PREFIX="$2"; shift 2 ;;
             --run-mode) SYSTEM_RUN_MODE="$2"; shift 2 ;;
             --http-port) SYSTEM_HTTP_PORT="$2"; shift 2 ;;
-            --api-prefix) SYSTEM_API_PREFIX="$2"; shift 2 ;;
             --default-lang) SYSTEM_DEFAULT_LANG="$2"; shift 2 ;;
             --jwt-secret) SYSTEM_JWT_SECRET="$2"; shift 2 ;;
             --admin-jwt-secret) ADMIN_JWT_SECRET="$2"; shift 2 ;;
@@ -530,7 +524,6 @@ collect_inputs() {
     SYSTEM_ROUTE_PREFIX="$(ask_with_default "system.route_prefix" "$SYSTEM_ROUTE_PREFIX")"
     SYSTEM_RUN_MODE="$(ask_with_default "system.run_mode (debug/release)" "$SYSTEM_RUN_MODE")"
     SYSTEM_HTTP_PORT="$(ask_with_default "system.http_port" "$SYSTEM_HTTP_PORT")"
-    SYSTEM_API_PREFIX="$(ask_with_default "system.api_prefix" "$SYSTEM_API_PREFIX")"
     SYSTEM_DEFAULT_LANG="$(ask_with_default "system.default_lang" "$SYSTEM_DEFAULT_LANG")"
 
     local dialect_input
@@ -611,7 +604,6 @@ type Config struct {
 		RoutePrefix  string `json:"route_prefix"`
 		RunMode      string `json:"run_mode"`
 		HTTPPort     string `json:"http_port"`
-		APIPrefix    string `json:"api_prefix"`
 		ReadTimeout  int    `json:"read_timeout"`
 		WriteTimeout int    `json:"write_timeout"`
 		Version      string `json:"version"`
@@ -706,7 +698,6 @@ func main() {
 	cfg.System.RoutePrefix = os.Getenv("CFG_SYSTEM_ROUTE_PREFIX")
 	cfg.System.RunMode = os.Getenv("CFG_SYSTEM_RUN_MODE")
 	cfg.System.HTTPPort = os.Getenv("CFG_SYSTEM_HTTP_PORT")
-	cfg.System.APIPrefix = os.Getenv("CFG_SYSTEM_API_PREFIX")
 	cfg.System.ReadTimeout = getenvInt("CFG_SYSTEM_READ_TIMEOUT", 60)
 	cfg.System.WriteTimeout = getenvInt("CFG_SYSTEM_WRITE_TIMEOUT", 60)
 	cfg.System.Version = os.Getenv("CFG_SYSTEM_VERSION")
@@ -846,7 +837,6 @@ EOF
     CFG_SYSTEM_ROUTE_PREFIX="$SYSTEM_ROUTE_PREFIX" \
     CFG_SYSTEM_RUN_MODE="$SYSTEM_RUN_MODE" \
     CFG_SYSTEM_HTTP_PORT="$SYSTEM_HTTP_PORT" \
-    CFG_SYSTEM_API_PREFIX="$SYSTEM_API_PREFIX" \
     CFG_SYSTEM_READ_TIMEOUT="$SYSTEM_READ_TIMEOUT" \
     CFG_SYSTEM_WRITE_TIMEOUT="$SYSTEM_WRITE_TIMEOUT" \
     CFG_SYSTEM_VERSION="$SYSTEM_VERSION" \
@@ -1029,7 +1019,7 @@ print_summary() {
     print_info "Dialect: $DIALECT"
     print_info "DB: $DB_NAME@$DB_HOST:$DB_PORT (user: $DB_USER)"
     print_info "Redis: $REDIS_HOST (db=$REDIS_DB)"
-    print_info "System: name=$SYSTEM_NAME run_mode=$SYSTEM_RUN_MODE route_prefix=$SYSTEM_ROUTE_PREFIX api_prefix=$SYSTEM_API_PREFIX effective_prefix=$effective_prefix"
+    print_info "System: name=$SYSTEM_NAME run_mode=$SYSTEM_RUN_MODE route_prefix=$SYSTEM_ROUTE_PREFIX effective_prefix=$effective_prefix"
 }
 
 main() {

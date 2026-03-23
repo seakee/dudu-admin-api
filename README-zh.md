@@ -121,14 +121,13 @@ ls -l ./dudu-admin-api/bin/data/sql/mysql/init.sql
 - `system.route_prefix`
 - `system.run_mode`
 - `system.http_port`
-- `system.api_prefix`
 - `system.default_lang`
 - `system.jwt_secret`
 - `system.admin.jwt_secret`
 
 ### 路由前缀
 
-生效路由前缀优先使用 `system.route_prefix`，若为空则回退到 `system.api_prefix`。  
+生效路由前缀由 `system.route_prefix` 配置。  
 默认值: `dudu-admin-api`。
 
 ## 架构说明

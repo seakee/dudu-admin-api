@@ -22,7 +22,6 @@ cp bin/configs/local.json.default bin/configs/prod.json
 - `system.http_port`
 - `system.jwt_secret`
 - `system.route_prefix`
-- `system.api_prefix`
 - `databases[*]`
 - `redis[*]`
 - `log`
@@ -82,16 +81,18 @@ RUN_ENV=prod make docker-run
 外部健康检查：
 
 ```bash
-curl -i http://127.0.0.1:8080/dudu-admin-api/external/ping
+API_PREFIX="${API_PREFIX:-dudu-admin-api}"
+curl -i "http://127.0.0.1:8080/${API_PREFIX}/external/ping"
 ```
 
 内部健康检查：
 
 ```bash
-curl -i http://127.0.0.1:8080/dudu-admin-api/internal/ping
+API_PREFIX="${API_PREFIX:-dudu-admin-api}"
+curl -i "http://127.0.0.1:8080/${API_PREFIX}/internal/ping"
 ```
 
-若你自定义了生效路由前缀（`system.route_prefix` 优先，否则 `system.api_prefix`），将路径中的 `/dudu-admin-api` 替换为实际值。
+若你自定义了 `system.route_prefix`，执行命令前先把 `API_PREFIX` 设置为对应的生效值。
 
 ## 日志与监控
 

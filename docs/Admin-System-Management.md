@@ -14,12 +14,14 @@ System management APIs are used by the admin console to maintain core system dat
 | Production | your-domain.com | 8080 |
 
 > **Base URL**: `http://{host}:{port}`
+>
+> **Effective route prefix**: `/{apiPrefix}`. Here `apiPrefix` refers to `system.route_prefix`; the default value is `dudu-admin-api`.
 
 ## Authentication
 - Header: `Authorization: Bearer <admin-token>`
 - Cookie (optional): `admin-token=<token>`
-- All routes are registered under `/dudu-admin-api/internal/admin/system` and validated by the `CheckAdminAuth` middleware.
-- All `/dudu-admin-api/internal/admin/system/*` routes go through `SaveOperationRecord`, so system management APIs write operation logs.
+- All routes are registered under `/{apiPrefix}/internal/admin/system` and validated by the `CheckAdminAuth` middleware.
+- All `/{apiPrefix}/internal/admin/system/*` routes go through `SaveOperationRecord`, so system management APIs write operation logs.
 
 ## Common Response Format
 ```json
@@ -68,13 +70,13 @@ System management APIs are used by the admin console to maintain core system dat
 ## Endpoint Overview
 | Function | Method | Path |
 | ---- | ---- | ---- |
-| System health check | GET | `/dudu-admin-api/internal/admin/system/ping` |
+| System health check | GET | `/{apiPrefix}/internal/admin/system/ping` |
 
 ---
 
 ### 1. System Health Check
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/ping`
+- **Path**: `/{apiPrefix}/internal/admin/system/ping`
 - **Description**: Used to detect admin system availability
 
 - **Response Example**:
@@ -93,18 +95,18 @@ System management APIs are used by the admin console to maintain core system dat
 ## Endpoint Overview
 | Function | Method | Path |
 | ---- | ---- | ---- |
-| Paginate users | GET | `/dudu-admin-api/internal/admin/system/user/paginate` |
-| User detail | GET | `/dudu-admin-api/internal/admin/system/user` |
-| Create user | POST | `/dudu-admin-api/internal/admin/system/user` |
-| Update user | PUT | `/dudu-admin-api/internal/admin/system/user` |
-| Delete user | DELETE | `/dudu-admin-api/internal/admin/system/user` |
-| Get user roles | GET | `/dudu-admin-api/internal/admin/system/user/role` |
-| Update user roles | PUT | `/dudu-admin-api/internal/admin/system/user/role` |
-| Admin reset user password | PUT | `/dudu-admin-api/internal/admin/system/user/password/reset` |
-| Admin disable user TFA | PUT | `/dudu-admin-api/internal/admin/system/user/tfa/disable` |
-| Query user Passkeys | GET | `/dudu-admin-api/internal/admin/system/user/passkeys` |
-| Delete a single user Passkey | DELETE | `/dudu-admin-api/internal/admin/system/user/passkey` |
-| Delete all user Passkeys | DELETE | `/dudu-admin-api/internal/admin/system/user/passkeys` |
+| Paginate users | GET | `/{apiPrefix}/internal/admin/system/user/paginate` |
+| User detail | GET | `/{apiPrefix}/internal/admin/system/user` |
+| Create user | POST | `/{apiPrefix}/internal/admin/system/user` |
+| Update user | PUT | `/{apiPrefix}/internal/admin/system/user` |
+| Delete user | DELETE | `/{apiPrefix}/internal/admin/system/user` |
+| Get user roles | GET | `/{apiPrefix}/internal/admin/system/user/role` |
+| Update user roles | PUT | `/{apiPrefix}/internal/admin/system/user/role` |
+| Admin reset user password | PUT | `/{apiPrefix}/internal/admin/system/user/password/reset` |
+| Admin disable user TFA | PUT | `/{apiPrefix}/internal/admin/system/user/tfa/disable` |
+| Query user Passkeys | GET | `/{apiPrefix}/internal/admin/system/user/passkeys` |
+| Delete a single user Passkey | DELETE | `/{apiPrefix}/internal/admin/system/user/passkey` |
+| Delete all user Passkeys | DELETE | `/{apiPrefix}/internal/admin/system/user/passkeys` |
 
 > **Password field contract (consistent with `docs/Admin-Auth.md`)**:
 > `password` should consistently be sent as `md5(plaintext password)`, and the server stores that digest with bcrypt.
@@ -113,7 +115,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 1. Paginate Users
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/user/paginate`
+- **Path**: `/{apiPrefix}/internal/admin/system/user/paginate`
 - **Query Parameters**:
 
   | Name | Type | Required | Default | Description |
@@ -127,7 +129,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 - **Example Request**:
   ```http
-  GET http://127.0.0.1:8080/dudu-admin-api/internal/admin/system/user/paginate?page=1&page_size=10
+  GET http://127.0.0.1:8080/{apiPrefix}/internal/admin/system/user/paginate?page=1&page_size=10
   Authorization: Bearer <admin-token>
   ```
 
@@ -175,7 +177,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 2. User Detail
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/user`
+- **Path**: `/{apiPrefix}/internal/admin/system/user`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -190,7 +192,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 3. Create User
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/system/user`
+- **Path**: `/{apiPrefix}/internal/admin/system/user`
 - **Body (JSON)**:
   ```json
   {
@@ -220,7 +222,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 4. Update User
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/system/user`
+- **Path**: `/{apiPrefix}/internal/admin/system/user`
 - **Body (JSON)**:
   ```json
   {
@@ -252,7 +254,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 5. Delete User
 - **Method**: DELETE
-- **Path**: `/dudu-admin-api/internal/admin/system/user`
+- **Path**: `/{apiPrefix}/internal/admin/system/user`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -269,7 +271,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 6. Get User Roles
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/user/role`
+- **Path**: `/{apiPrefix}/internal/admin/system/user/role`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -295,7 +297,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 7. Update User Roles
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/system/user/role`
+- **Path**: `/{apiPrefix}/internal/admin/system/user/role`
 - **Body (JSON)**:
   ```json
   {
@@ -319,7 +321,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 8. Admin Reset User Password
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/system/user/password/reset`
+- **Path**: `/{apiPrefix}/internal/admin/system/user/password/reset`
 - **Description**: Admin resets the password for a specified user. This is different from the auth module's self-service password reset.
 - **Body (JSON)**:
   ```json
@@ -349,7 +351,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 9. Admin Disable User TFA
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/system/user/tfa/disable`
+- **Path**: `/{apiPrefix}/internal/admin/system/user/tfa/disable`
 - **Description**: Admin forcibly disables TFA for the specified user without requiring that user's `totp_code`
 - **Body (JSON)**:
   ```json
@@ -377,7 +379,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 10. Query User Passkeys
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/user/passkeys`
+- **Path**: `/{apiPrefix}/internal/admin/system/user/passkeys`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -422,7 +424,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 11. Delete a Single User Passkey
 - **Method**: DELETE
-- **Path**: `/dudu-admin-api/internal/admin/system/user/passkey`
+- **Path**: `/{apiPrefix}/internal/admin/system/user/passkey`
 - **Body (JSON)**:
   ```json
   {
@@ -449,7 +451,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 12. Delete All User Passkeys
 - **Method**: DELETE
-- **Path**: `/dudu-admin-api/internal/admin/system/user/passkeys`
+- **Path**: `/{apiPrefix}/internal/admin/system/user/passkeys`
 - **Body (JSON)**:
   ```json
   {
@@ -484,21 +486,21 @@ System management APIs are used by the admin console to maintain core system dat
 ## Endpoint Overview
 | Function | Method | Path |
 | ---- | ---- | ---- |
-| Role list (no pagination) | GET | `/dudu-admin-api/internal/admin/system/role/list` |
-| Paginate roles | GET | `/dudu-admin-api/internal/admin/system/role/paginate` |
-| Role detail | GET | `/dudu-admin-api/internal/admin/system/role` |
-| Create role | POST | `/dudu-admin-api/internal/admin/system/role` |
-| Update role | PUT | `/dudu-admin-api/internal/admin/system/role` |
-| Delete role | DELETE | `/dudu-admin-api/internal/admin/system/role` |
-| Get role permissions | GET | `/dudu-admin-api/internal/admin/system/role/permission` |
-| Get role menu permission tree | GET | `/dudu-admin-api/internal/admin/system/role/permission/menu-tree` |
-| Update role permissions | PUT | `/dudu-admin-api/internal/admin/system/role/permission` |
+| Role list (no pagination) | GET | `/{apiPrefix}/internal/admin/system/role/list` |
+| Paginate roles | GET | `/{apiPrefix}/internal/admin/system/role/paginate` |
+| Role detail | GET | `/{apiPrefix}/internal/admin/system/role` |
+| Create role | POST | `/{apiPrefix}/internal/admin/system/role` |
+| Update role | PUT | `/{apiPrefix}/internal/admin/system/role` |
+| Delete role | DELETE | `/{apiPrefix}/internal/admin/system/role` |
+| Get role permissions | GET | `/{apiPrefix}/internal/admin/system/role/permission` |
+| Get role menu permission tree | GET | `/{apiPrefix}/internal/admin/system/role/permission/menu-tree` |
+| Update role permissions | PUT | `/{apiPrefix}/internal/admin/system/role/permission` |
 
 ---
 
 ### 1. Role List (No Pagination)
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/role/list`
+- **Path**: `/{apiPrefix}/internal/admin/system/role/list`
 - **Description**: Returns summary information for all roles, usually for select/dropdown options
 
 - **Response Example**:
@@ -517,7 +519,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 2. Paginate Roles
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/role/paginate`
+- **Path**: `/{apiPrefix}/internal/admin/system/role/paginate`
 - **Query Parameters**:
 
   | Name | Type | Required | Default | Description |
@@ -542,7 +544,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 3. Role Detail
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/role`
+- **Path**: `/{apiPrefix}/internal/admin/system/role`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -556,7 +558,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 4. Create Role
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/system/role`
+- **Path**: `/{apiPrefix}/internal/admin/system/role`
 - **Body (JSON)**:
   ```json
   {
@@ -578,7 +580,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 5. Update Role
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/system/role`
+- **Path**: `/{apiPrefix}/internal/admin/system/role`
 - **Body (JSON)**:
   ```json
   {
@@ -594,7 +596,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 6. Delete Role
 - **Method**: DELETE
-- **Path**: `/dudu-admin-api/internal/admin/system/role`
+- **Path**: `/{apiPrefix}/internal/admin/system/role`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -608,7 +610,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 7. Get Role Permissions
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/role/permission`
+- **Path**: `/{apiPrefix}/internal/admin/system/role/permission`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -625,7 +627,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 8. Update Role Permissions
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/system/role/permission`
+- **Path**: `/{apiPrefix}/internal/admin/system/role/permission`
 - **Body (JSON)**:
   ```json
   {
@@ -647,7 +649,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 9. Get Role Menu Permission Tree
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/role/permission/menu-tree`
+- **Path**: `/{apiPrefix}/internal/admin/system/role/permission/menu-tree`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -715,20 +717,20 @@ System management APIs are used by the admin console to maintain core system dat
 ## Endpoint Overview
 | Function | Method | Path |
 | ---- | ---- | ---- |
-| Available permission list | GET | `/dudu-admin-api/internal/admin/system/permission/available` |
-| Permission list (grouped) | GET | `/dudu-admin-api/internal/admin/system/permission/list` |
-| Paginate permissions | GET | `/dudu-admin-api/internal/admin/system/permission/paginate` |
-| Permission detail | GET | `/dudu-admin-api/internal/admin/system/permission` |
-| Create permission | POST | `/dudu-admin-api/internal/admin/system/permission` |
-| Update permission | PUT | `/dudu-admin-api/internal/admin/system/permission` |
-| Delete permission | DELETE | `/dudu-admin-api/internal/admin/system/permission` |
+| Available permission list | GET | `/{apiPrefix}/internal/admin/system/permission/available` |
+| Permission list (grouped) | GET | `/{apiPrefix}/internal/admin/system/permission/list` |
+| Paginate permissions | GET | `/{apiPrefix}/internal/admin/system/permission/paginate` |
+| Permission detail | GET | `/{apiPrefix}/internal/admin/system/permission` |
+| Create permission | POST | `/{apiPrefix}/internal/admin/system/permission` |
+| Update permission | PUT | `/{apiPrefix}/internal/admin/system/permission` |
+| Delete permission | DELETE | `/{apiPrefix}/internal/admin/system/permission` |
 
 ---
 
 ### 1. Available Permission List
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/permission/available`
-- **Description**: Returns admin routes that do not yet have a permission record, limited to `/dudu-admin-api/internal/admin/*` and excluding `ping`
+- **Path**: `/{apiPrefix}/internal/admin/system/permission/available`
+- **Description**: Returns admin routes that do not yet have a permission record, limited to `/{apiPrefix}/internal/admin/*` and excluding `ping`
 
 - **Response Structure**: grouped by HTTP method
 
@@ -747,11 +749,11 @@ System management APIs are used by the admin console to maintain core system dat
     "msg": "OK",
     "data": {
       "GET": [
-        "/dudu-admin-api/internal/admin/system/user",
-        "/dudu-admin-api/internal/admin/system/role/list"
+        "/{apiPrefix}/internal/admin/system/user",
+        "/{apiPrefix}/internal/admin/system/role/list"
       ],
       "POST": [
-        "/dudu-admin-api/internal/admin/system/user"
+        "/{apiPrefix}/internal/admin/system/user"
       ]
     }
   }
@@ -761,7 +763,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 2. Permission List (Grouped)
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/permission/list`
+- **Path**: `/{apiPrefix}/internal/admin/system/permission/list`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -791,7 +793,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 3. Paginate Permissions
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/permission/paginate`
+- **Path**: `/{apiPrefix}/internal/admin/system/permission/paginate`
 - **Query Parameters**:
 
   | Name | Type | Required | Default | Description |
@@ -823,7 +825,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 4. Permission Detail
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/permission`
+- **Path**: `/{apiPrefix}/internal/admin/system/permission`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -837,14 +839,14 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 5. Create Permission
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/system/permission`
+- **Path**: `/{apiPrefix}/internal/admin/system/permission`
 - **Body (JSON)**:
   ```json
   {
     "name": "View User",
     "type": "api",
     "method": "GET",
-    "path": "/dudu-admin-api/internal/admin/system/user",
+    "path": "/{apiPrefix}/internal/admin/system/user",
     "description": "Permission to get user information",
     "group": "用户管理"
   }
@@ -867,7 +869,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 6. Update Permission
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/system/permission`
+- **Path**: `/{apiPrefix}/internal/admin/system/permission`
 - **Body (JSON)**: same as the create endpoint, with an additional `id` field
 - **Successful Return**: `code=0`
 - **Error Codes**: `400`, `11019`
@@ -876,7 +878,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 7. Delete Permission
 - **Method**: DELETE
-- **Path**: `/dudu-admin-api/internal/admin/system/permission`
+- **Path**: `/{apiPrefix}/internal/admin/system/permission`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -893,17 +895,17 @@ System management APIs are used by the admin console to maintain core system dat
 ## Endpoint Overview
 | Function | Method | Path |
 | ---- | ---- | ---- |
-| Menu tree list | GET | `/dudu-admin-api/internal/admin/system/menu/list` |
-| Menu detail | GET | `/dudu-admin-api/internal/admin/system/menu` |
-| Create menu | POST | `/dudu-admin-api/internal/admin/system/menu` |
-| Update menu | PUT | `/dudu-admin-api/internal/admin/system/menu` |
-| Delete menu | DELETE | `/dudu-admin-api/internal/admin/system/menu` |
+| Menu tree list | GET | `/{apiPrefix}/internal/admin/system/menu/list` |
+| Menu detail | GET | `/{apiPrefix}/internal/admin/system/menu` |
+| Create menu | POST | `/{apiPrefix}/internal/admin/system/menu` |
+| Update menu | PUT | `/{apiPrefix}/internal/admin/system/menu` |
+| Delete menu | DELETE | `/{apiPrefix}/internal/admin/system/menu` |
 
 ---
 
 ### 1. Menu Tree List
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/menu/list`
+- **Path**: `/{apiPrefix}/internal/admin/system/menu/list`
 - **Description**: Returns the menu list as a tree structure
 
 - **Response Structure**:
@@ -957,7 +959,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 2. Menu Detail
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/menu`
+- **Path**: `/{apiPrefix}/internal/admin/system/menu`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -971,7 +973,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 3. Create Menu
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/system/menu`
+- **Path**: `/{apiPrefix}/internal/admin/system/menu`
 - **Body (JSON)**:
   ```json
   {
@@ -999,7 +1001,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 4. Update Menu
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/system/menu`
+- **Path**: `/{apiPrefix}/internal/admin/system/menu`
 - **Body (JSON)**:
   ```json
   {
@@ -1029,7 +1031,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 5. Delete Menu
 - **Method**: DELETE
-- **Path**: `/dudu-admin-api/internal/admin/system/menu`
+- **Path**: `/{apiPrefix}/internal/admin/system/menu`
 - **Query Parameters**:
 
   | Name | Type | Required | Description |
@@ -1048,14 +1050,14 @@ System management APIs are used by the admin console to maintain core system dat
 ## Endpoint Overview
 | Function | Method | Path |
 | ---- | ---- | ---- |
-| Paginate operation records | GET | `/dudu-admin-api/internal/admin/system/record/paginate` |
-| Operation record detail | GET | `/dudu-admin-api/internal/admin/system/record/detail` |
+| Paginate operation records | GET | `/{apiPrefix}/internal/admin/system/record/paginate` |
+| Operation record detail | GET | `/{apiPrefix}/internal/admin/system/record/detail` |
 
 ---
 
 ### 1. Paginate Operation Records
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/record/paginate`
+- **Path**: `/{apiPrefix}/internal/admin/system/record/paginate`
 - **Description**: Queries system operation logs stored in `sys_operation_record`; the user name is resolved from `sys_user.user_name` through `user_id`
 - **Query Parameters**:
 
@@ -1095,7 +1097,7 @@ System management APIs are used by the admin console to maintain core system dat
         {
           "ID": 1024,
           "Method": "POST",
-          "Path": "/dudu-admin-api/internal/admin/system/user",
+          "Path": "/{apiPrefix}/internal/admin/system/user",
           "IP": "192.168.1.100",
           "Status": 0,
           "UserName": "admin",
@@ -1112,7 +1114,7 @@ System management APIs are used by the admin console to maintain core system dat
 
 ### 2. Operation Record Detail
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/system/record/detail`
+- **Path**: `/{apiPrefix}/internal/admin/system/record/detail`
 - **Description**: Returns the full log detail for a given operation record ID
 - **Query Parameters**:
 

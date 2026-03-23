@@ -9,12 +9,14 @@ This document is based on the current implementation and covers the full behavio
 ## 1. Basic Information
 
 ### 1.1 Route Prefixes
-- `app/http/router/handler.go`: registers `/dudu-admin-api`
+- `app/http/router/handler.go`: registers `/{apiPrefix}`
 - `app/http/router/internal/handler.go`: registers `/internal`
 - `app/http/router/internal/admin/handler.go`: registers `/admin` (`SaveOperationRecord` is mounted on `/admin/system`)
 - `app/http/router/internal/admin/auth/handler.go`: registers `/auth`
 
-The full business route prefix for the auth module is `/dudu-admin-api/internal/admin/auth`.
+Here `apiPrefix` refers to `system.route_prefix`; the default value is `dudu-admin-api`.
+
+The full business route prefix for the auth module is `/{apiPrefix}/internal/admin/auth`.
 
 ### 1.2 Route Overview (matches `auth.go`)
 | Function | Method | Path | Protected by `CheckAdminAuth` |
@@ -72,7 +74,7 @@ sequenceDiagram
   participant S as AuthService
   participant R as Repository/Redis
 
-  C->>RL: Request /dudu-admin-api/internal/admin/auth/*
+  C->>RL: Request /{apiPrefix}/internal/admin/auth/*
   RL->>MA: Enter auth middleware (protected routes only)
   MA->>S: VerifyToken + HasRole/HasPermission
   MA-->>H: On success, inject user_id/user_name
@@ -487,7 +489,7 @@ Additional notes:
 
 ## 6.1 Get OAuth Login URL
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/auth/oauth/url`
+- **Path**: `/{apiPrefix}/internal/admin/auth/oauth/url`
 - **Auth**: No
 - **Query**:
 
@@ -503,7 +505,7 @@ Additional notes:
 
 ## 6.2 Exchange Login Token
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/token`
+- **Path**: `/{apiPrefix}/internal/admin/auth/token`
 - **Auth**: No
 - **Body**: `AuthParam`
 - **Response**: `AccessToken`
@@ -532,7 +534,7 @@ Additional notes:
 
 ## 6.3 Get Current User Profile
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/auth/profile`
+- **Path**: `/{apiPrefix}/internal/admin/auth/profile`
 - **Auth**: Yes
 - **Response**:
   ```json
@@ -559,7 +561,7 @@ Additional notes:
 
 ## 6.4 Reset Password (safe code)
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/auth/password/reset`
+- **Path**: `/{apiPrefix}/internal/admin/auth/password/reset`
 - **Auth**: No
 - **Body**:
 
@@ -574,7 +576,7 @@ Additional notes:
 
 ## 6.5 Change Password
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/auth/password`
+- **Path**: `/{apiPrefix}/internal/admin/auth/password`
 - **Auth**: Yes
 - **Body**:
 
@@ -593,7 +595,7 @@ Additional notes:
 
 ## 6.6 Update Profile
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/auth/profile`
+- **Path**: `/{apiPrefix}/internal/admin/auth/profile`
 - **Auth**: Yes
 - **Body**:
 
@@ -609,7 +611,7 @@ Additional notes:
 
 ## 6.7 Get User Menus
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/auth/menus`
+- **Path**: `/{apiPrefix}/internal/admin/auth/menus`
 - **Auth**: Yes
 - **Response**: `data.items` (see the menu tree structure in 4.6)
 - **Permission logic**:
@@ -621,7 +623,7 @@ Additional notes:
 
 ## 6.8 Change Login Identifier
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/auth/identifier`
+- **Path**: `/{apiPrefix}/internal/admin/auth/identifier`
 - **Auth**: Yes
 - **Body**:
 
@@ -643,7 +645,7 @@ Additional notes:
 
 ## 6.9 Local Account Re-authentication
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/reauth`
+- **Path**: `/{apiPrefix}/internal/admin/auth/reauth`
 - **Auth**: No
 - **Body**:
 
@@ -698,7 +700,7 @@ Additional notes:
 
 ### 6.9.1 Get Sensitive-Operation Verification Methods
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/auth/reauth/methods`
+- **Path**: `/{apiPrefix}/internal/admin/auth/reauth/methods`
 - **Auth**: Yes
 - **Successful response**:
   - `default_method`: `passkey` / `password`
@@ -709,7 +711,7 @@ Additional notes:
 
 ### 6.9.2 Verify Sensitive Operation with Password
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/reauth/password`
+- **Path**: `/{apiPrefix}/internal/admin/auth/reauth/password`
 - **Auth**: Yes
 - **Body**:
 
@@ -723,7 +725,7 @@ Additional notes:
 
 ### 6.9.3 Verify Sensitive Operation with TOTP
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/reauth/totp`
+- **Path**: `/{apiPrefix}/internal/admin/auth/reauth/totp`
 - **Auth**: Yes
 - **Body**:
 
@@ -741,13 +743,13 @@ Additional notes:
 
 ### 6.9.4 Get Passkey Verification Options for Sensitive Operations
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/reauth/passkey/options`
+- **Path**: `/{apiPrefix}/internal/admin/auth/reauth/passkey/options`
 - **Auth**: Yes
 - **Response**: `PasskeyOptionsResult`
 
 ### 6.9.5 Finish Passkey Verification for Sensitive Operations
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/reauth/passkey/finish`
+- **Path**: `/{apiPrefix}/internal/admin/auth/reauth/passkey/finish`
 - **Auth**: Yes
 - **Body**:
 
@@ -767,7 +769,7 @@ Additional notes:
 
 ## 6.10 Confirm Third-Party Binding
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/oauth/bind/confirm`
+- **Path**: `/{apiPrefix}/internal/admin/auth/oauth/bind/confirm`
 - **Auth**: No
 - **Body**:
 
@@ -809,7 +811,7 @@ Additional notes:
 
 ## 6.11 List Bound Third-Party Accounts
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/auth/oauth/accounts`
+- **Path**: `/{apiPrefix}/internal/admin/auth/oauth/accounts`
 - **Auth**: Yes
 - **Response**: `data.list[]`
 
@@ -829,7 +831,7 @@ Additional notes:
 
 ## 6.12 Unbind Third-Party Account
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/oauth/unbind`
+- **Path**: `/{apiPrefix}/internal/admin/auth/oauth/unbind`
 - **Auth**: Yes
 - **Body**:
 
@@ -857,7 +859,7 @@ Additional notes:
 
 ## 6.13 Get Passkey Login Options
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/passkey/login/options`
+- **Path**: `/{apiPrefix}/internal/admin/auth/passkey/login/options`
 - **Auth**: No
 - **Response**: `PasskeyOptionsResult`
 - **Notes**:
@@ -870,7 +872,7 @@ Additional notes:
 
 ## 6.14 Finish Passkey Login
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/passkey/login/finish`
+- **Path**: `/{apiPrefix}/internal/admin/auth/passkey/login/finish`
 - **Auth**: No
 - **Body**:
 
@@ -886,7 +888,7 @@ Additional notes:
 
 ## 6.15 Get Passkey Registration Options
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/passkey/register/options`
+- **Path**: `/{apiPrefix}/internal/admin/auth/passkey/register/options`
 - **Auth**: Yes
 - **Body**:
 
@@ -905,7 +907,7 @@ Additional notes:
 
 ## 6.16 Finish Passkey Registration
 - **Method**: POST
-- **Path**: `/dudu-admin-api/internal/admin/auth/passkey/register/finish`
+- **Path**: `/{apiPrefix}/internal/admin/auth/passkey/register/finish`
 - **Auth**: Yes
 - **Body**:
 
@@ -921,7 +923,7 @@ Additional notes:
 
 ## 6.17 List Current User's Passkeys
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/auth/passkeys`
+- **Path**: `/{apiPrefix}/internal/admin/auth/passkeys`
 - **Auth**: Yes
 - **Response**: `data.list[]`
 
@@ -940,7 +942,7 @@ Additional notes:
 
 ## 6.18 Delete Current User's Passkey
 - **Method**: DELETE
-- **Path**: `/dudu-admin-api/internal/admin/auth/passkey`
+- **Path**: `/{apiPrefix}/internal/admin/auth/passkey`
 - **Auth**: Yes
 - **Body**:
 
@@ -961,7 +963,7 @@ Additional notes:
 
 ## 6.19 Enable TFA
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/auth/tfa/enable`
+- **Path**: `/{apiPrefix}/internal/admin/auth/tfa/enable`
 - **Auth**: Yes
 - **Body**:
 
@@ -977,7 +979,7 @@ Additional notes:
 
 ## 6.20 Disable TFA
 - **Method**: PUT
-- **Path**: `/dudu-admin-api/internal/admin/auth/tfa/disable`
+- **Path**: `/{apiPrefix}/internal/admin/auth/tfa/disable`
 - **Auth**: Yes
 - **Body**:
 
@@ -991,7 +993,7 @@ Additional notes:
 
 ## 6.21 Get TOTP Key
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/auth/tfa/key`
+- **Path**: `/{apiPrefix}/internal/admin/auth/tfa/key`
 - **Auth**: Yes
 - **Response**:
 
@@ -1006,7 +1008,7 @@ Additional notes:
 
 ## 6.22 Get TFA Status
 - **Method**: GET
-- **Path**: `/dudu-admin-api/internal/admin/auth/tfa/status`
+- **Path**: `/{apiPrefix}/internal/admin/auth/tfa/status`
 - **Auth**: Yes
 - **Response**:
 
