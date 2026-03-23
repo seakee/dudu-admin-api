@@ -22,30 +22,38 @@ make build
 make run
 ```
 
-### 一键初始化（含数据库与超级管理员种子数据）
+### 单入口初始化 / 生成（含数据库与超级管理员种子数据）
 
-`bin/data/sql/{dialect}/init.sql` 已包含完整建表与后台超级管理员初始化数据。可使用脚本一键初始化：
+`bin/data/sql/{dialect}/init.sql` 已包含完整建表与后台超级管理员初始化数据。可使用 `scripts/init-project.sh` 作为唯一推荐入口：
 
 ```bash
-# 仓库内执行：默认进入交互式向导，生成最小可运行配置并初始化数据库
+# 仓库内执行：默认进入交互式向导，初始化当前仓库
 ./scripts/init-project.sh
 
-# 远程下载并执行（不需要提前 clone 仓库）
+# 远程下载并执行：生成默认目录 ./dudu-admin-api
 curl -fsSL https://raw.githubusercontent.com/seakee/dudu-admin-api/main/scripts/init-project.sh -o init-project.sh
 bash init-project.sh
 
-# 非交互模式（CI/自动化）
+# 远程下载并生成自定义项目
+bash init-project.sh --project-name my-api --module-name github.com/acme/my-api
+
+# 非交互模式：生成并初始化新项目
 bash init-project.sh --non-interactive --yes \
+  --project-name my-api \
+  --module-name github.com/acme/my-api \
+  --dialect postgres \
+  --db-host 127.0.0.1 --db-port 5432 \
+  --db-name my-api --db-user my-api --db-password 'your-password'
+
+# 非交互模式：初始化现有仓库
+bash init-project.sh --non-interactive --yes \
+  --project-dir ./dudu-admin-api --skip-clone \
   --dialect postgres \
   --db-host 127.0.0.1 --db-port 5432 \
   --db-name dudu-admin-api --db-user dudu-admin-api --db-password 'your-password'
 ```
 
-如目标目录已存在仓库，可追加：
-
-```bash
---project-dir ./dudu-admin-api --skip-clone
-```
+若 `--module-name` 不是远端仓库路径，且当前不在模板仓库内执行，请显式传入 `--repo-url`。
 
 脚本会生成最小化可执行配置文件（`bin/configs/{RUN_ENV}.json`），并设置：
 - `system.name`

@@ -22,30 +22,38 @@ make build
 make run
 ```
 
-### One-command initialization (database + super admin seed data)
+### Single-entry bootstrap / project generation (database + super admin seed data)
 
-`bin/data/sql/{dialect}/init.sql` already contains full schema and admin seed data. Use the script below to bootstrap the project:
+`bin/data/sql/{dialect}/init.sql` already contains full schema and admin seed data. Use `scripts/init-project.sh` as the single recommended entry:
 
 ```bash
-# Run inside repository: interactive wizard by default
+# Run inside repository: initialize the current repository interactively
 ./scripts/init-project.sh
 
-# Remote download and run (no pre-clone required)
+# Remote download and run: generate the default ./dudu-admin-api directory
 curl -fsSL https://raw.githubusercontent.com/seakee/dudu-admin-api/main/scripts/init-project.sh -o init-project.sh
 bash init-project.sh
 
-# Non-interactive mode (CI/automation)
+# Remote download and generate a custom project
+bash init-project.sh --project-name my-api --module-name github.com/acme/my-api
+
+# Non-interactive mode: generate and initialize a new project
 bash init-project.sh --non-interactive --yes \
+  --project-name my-api \
+  --module-name github.com/acme/my-api \
+  --dialect postgres \
+  --db-host 127.0.0.1 --db-port 5432 \
+  --db-name my-api --db-user my-api --db-password 'your-password'
+
+# Non-interactive mode: initialize an existing repository
+bash init-project.sh --non-interactive --yes \
+  --project-dir ./dudu-admin-api --skip-clone \
   --dialect postgres \
   --db-host 127.0.0.1 --db-port 5432 \
   --db-name dudu-admin-api --db-user dudu-admin-api --db-password 'your-password'
 ```
 
-If repository already exists in target path, append:
-
-```bash
---project-dir ./dudu-admin-api --skip-clone
-```
+If `--module-name` is not a remote repository path and you are not running inside the template repository, pass `--repo-url` explicitly.
 
 The script generates a minimal runnable config file (`bin/configs/{RUN_ENV}.json`) including:
 - `system.name`
