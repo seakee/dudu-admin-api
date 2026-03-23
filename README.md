@@ -2,15 +2,26 @@
 
 **Languages**: [English](README.md) | [中文](README-zh.md)
 
+A ready-to-use Go admin backend for internal tools, management consoles, and operations dashboards.
+
 ## Overview
 
-`dudu-admin-api` is the admin backend extracted from the original `admin` branch of `seakee/dudu-admin-api`.
-It focuses on admin auth, users, roles, permissions, menus, and operation records.
+`dudu-admin-api` helps you launch a Dudu-style admin system faster with the backend capabilities most teams need from day one.
+It brings together admin auth, RBAC, menus, user and role management, permissions, and audit logs so you can focus on business workflows instead of rebuilding common admin infrastructure.
 
+- Built for: internal tools, management consoles, and operations dashboards
+- Core capabilities: admin auth, RBAC, menus, users, roles, permissions, and operation records
 - Related frontend: `https://github.com/seakee/dudu-admin`
 - Repository: `https://github.com/seakee/dudu-admin-api`
-- Source branch: `seakee/dudu-admin-api:admin`
+- Project background: extracted from `seakee/dudu-admin-api:admin`
 - Import baseline: `6df6cfe8aeeb27eaaaee74c7fb7e520af5f8feb2`
+
+## Features
+
+- Ready-to-use admin backend baseline for new internal systems and existing projects
+- Built-in admin auth, RBAC, menus, users, roles, and permission management
+- Fast bootstrap flow for generating a project or initializing the current repository
+- Straightforward frontend integration with the related `dudu-admin` project
 
 ## Quick Start
 

@@ -2,14 +2,26 @@
 
 **语言版本**: [English](README.md) | [中文](README-zh.md)
 
+一个开箱可用的 Go 管理后台后端，适合内部管理平台、管理控制台与运营后台。
+
 ## 项目概述
 
-`dudu-admin-api` 是从 `seakee/dudu-admin-api` 的 `admin` 分支拆分出的后台管理后端项目，聚焦后台认证鉴权、用户、角色、权限、菜单、操作记录等能力。
+`dudu-admin-api` 帮助你更快搭建 Dudu 风格后台系统，提供多数团队从第一天就会用到的后台基础能力。
+它将后台认证鉴权、RBAC、菜单、用户与角色管理、权限控制、操作记录整合在一起，让你把精力放在业务流程，而不是重复搭建通用后台基础设施。
 
+- 适用场景: 内部管理平台、管理控制台、运营后台
+- 核心能力: 后台认证鉴权、RBAC、菜单、用户、角色、权限、操作记录
 - 配套前端: `https://github.com/seakee/dudu-admin`
 - 仓库地址: `https://github.com/seakee/dudu-admin-api`
-- 来源分支: `seakee/dudu-admin-api:admin`
+- 项目来源: 从 `seakee/dudu-admin-api:admin` 拆分而来
 - 导入基线: `6df6cfe8aeeb27eaaaee74c7fb7e520af5f8feb2`
+
+## 产品特性
+
+- 为新项目和现有项目提供开箱可用的后台基础能力
+- 内置后台认证鉴权、RBAC、菜单、用户、角色与权限管理
+- 提供快速初始化流程，可生成项目或直接初始化当前仓库
+- 可与配套前端 `dudu-admin` 直接配合完成前后端联调
 
 ## 快速开始
 
