@@ -27,8 +27,6 @@ import (
 // This function sets up the Gin engine, configures the server,
 // and starts listening for incoming HTTP requests.
 func (a *App) startHTTPServer(ctx context.Context) {
-	gin.SetMode(a.Config.System.RunMode)
-
 	appCtx := &appHttp.Context{
 		Logger:        a.Logger,
 		Redis:         a.Redis,
@@ -69,6 +67,7 @@ func (a *App) startHTTPServer(ctx context.Context) {
 // This function configures the Gin engine with various middleware
 // and sets up panic monitoring if enabled.
 func (a *App) loadMux(ctx context.Context) {
+	gin.SetMode(a.Config.System.RunMode)
 	mux := gin.New()
 
 	mux.Use(a.Middleware.SetTraceID())
