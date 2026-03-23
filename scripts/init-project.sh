@@ -455,7 +455,7 @@ prepare_project_root() {
         PROJECT_DIR="$CURRENT_DIR/dudu-admin-api"
     fi
     if [[ "$INTERACTIVE" == true ]]; then
-        PROJECT_DIR="$(ask_with_default "项目目录（若不存在将自动 clone）" "$PROJECT_DIR")"
+        PROJECT_DIR="$(ask_with_default "Project directory (repository will be cloned if missing)" "$PROJECT_DIR")"
     fi
 
     if [[ -d "$PROJECT_DIR" ]]; then
@@ -518,8 +518,8 @@ collect_inputs() {
         return
     fi
 
-    print_info "进入交互式配置向导"
-    RUN_ENV="$(ask_with_default "运行环境 RUN_ENV" "$RUN_ENV")"
+    print_info "Starting interactive configuration wizard"
+    RUN_ENV="$(ask_with_default "Runtime environment RUN_ENV" "$RUN_ENV")"
     SYSTEM_NAME="$(ask_with_default "system.name" "$SYSTEM_NAME")"
     SYSTEM_ROUTE_PREFIX="$(ask_with_default "system.route_prefix" "$SYSTEM_ROUTE_PREFIX")"
     SYSTEM_RUN_MODE="$(ask_with_default "system.run_mode (debug/release)" "$SYSTEM_RUN_MODE")"
@@ -527,7 +527,7 @@ collect_inputs() {
     SYSTEM_DEFAULT_LANG="$(ask_with_default "system.default_lang" "$SYSTEM_DEFAULT_LANG")"
 
     local dialect_input
-    dialect_input="$(ask_with_default "数据库类型 (mysql/postgres)" "$DIALECT")"
+    dialect_input="$(ask_with_default "Database dialect (mysql/postgres)" "$DIALECT")"
     dialect_input="$(printf "%s" "$dialect_input" | tr '[:upper:]' '[:lower:]')"
     if [[ "$dialect_input" == "mysql" || "$dialect_input" == "postgres" ]]; then
         DIALECT="$dialect_input"
@@ -551,14 +551,14 @@ collect_inputs() {
     fi
 
     REDIS_HOST="$(ask_with_default "redis.host" "$REDIS_HOST")"
-    REDIS_AUTH="$(ask_secret_with_default "redis.auth (可留空)" "$REDIS_AUTH")"
+    REDIS_AUTH="$(ask_secret_with_default "redis.auth (optional)" "$REDIS_AUTH")"
     REDIS_DB="$(ask_with_default "redis.db" "$REDIS_DB")"
 
-    if ask_yes_no "是否覆盖超级管理员（user_id=1）账号字段？" "N"; then
+    if ask_yes_no "Override super admin (user_id=1) account fields?" "N"; then
         ADMIN_EMAIL="$(ask_with_default "admin email" "$ADMIN_EMAIL")"
         ADMIN_PHONE="$(ask_with_default "admin phone" "$ADMIN_PHONE")"
         ADMIN_USERNAME="$(ask_with_default "admin username" "$ADMIN_USERNAME")"
-        ADMIN_PASSWORD="$(ask_secret_with_default "admin password (留空则不改)" "$ADMIN_PASSWORD")"
+        ADMIN_PASSWORD="$(ask_secret_with_default "admin password (leave blank to keep unchanged)" "$ADMIN_PASSWORD")"
     fi
 }
 
@@ -711,7 +711,7 @@ func main() {
 	cfg.System.Admin.AuthRateLimit.Enable = true
 	cfg.System.Admin.AuthRateLimit.WindowSeconds = 60
 	cfg.System.Admin.AuthRateLimit.MaxRequests = 20
-	cfg.System.Admin.Oauth.RedirectURL = "http://127.0.0.1:3000/oauth"
+	cfg.System.Admin.Oauth.RedirectURL = "http://localhost:3000/auth/callback"
 	cfg.System.Admin.Oauth.Feishu.OauthURL = "https://open.feishu.cn/open-apis/authen/v1/authorize"
 	cfg.System.Admin.Oauth.Wechat.OauthURL = "https://open.weixin.qq.com/connect/oauth2/authorize"
 	cfg.System.Admin.WebAuthn = WebAuthn{
@@ -865,9 +865,9 @@ confirm_destructive() {
     if [[ "$YES" == true || "$DRY_RUN" == true ]]; then
         return
     fi
-    print_warning "即将执行 init.sql，数据库 [$DB_NAME] 的相关表会被重置（DROP TABLE）"
-    if ! ask_yes_no "确认继续执行？" "N"; then
-        print_info "已取消。"
+    print_warning "About to execute init.sql. Related tables in database [$DB_NAME] will be reset (DROP TABLE)."
+    if ! ask_yes_no "Continue?" "N"; then
+        print_info "Cancelled."
         exit 0
     fi
 }
@@ -1034,8 +1034,8 @@ main() {
     print_summary
 
     if [[ "$INTERACTIVE" == true && "$DRY_RUN" != true ]]; then
-        if ! ask_yes_no "确认写入配置并执行初始化？" "Y"; then
-            print_info "已取消。"
+        if ! ask_yes_no "Write the config and run initialization?" "Y"; then
+            print_info "Cancelled."
             exit 0
         fi
     fi
