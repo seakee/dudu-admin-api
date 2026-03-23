@@ -7,6 +7,7 @@
 `dudu-admin-api` is the admin backend extracted from the original `admin` branch of `seakee/dudu-admin-api`.
 It focuses on admin auth, users, roles, permissions, menus, and operation records.
 
+- Related frontend: `https://github.com/seakee/dudu-admin`
 - Repository: `https://github.com/seakee/dudu-admin-api`
 - Source branch: `seakee/dudu-admin-api:admin`
 - Import baseline: `6df6cfe8aeeb27eaaaee74c7fb7e520af5f8feb2`
@@ -130,6 +131,24 @@ The bootstrap script generates required minimal fields including:
 
 The effective route prefix is configured by `system.route_prefix`.  
 Default: `dudu-admin-api`.
+
+## Frontend Integration
+
+- Related frontend project: [`dudu-admin`](https://github.com/seakee/dudu-admin)
+- Recommended local frontend address: `http://localhost:3000`
+- Recommended local backend address: `http://127.0.0.1:8080`
+
+When using the default local setup:
+
+- keep frontend `VITE_API_ROUTE_PREFIX=/dudu-admin-api` aligned with backend `system.route_prefix`
+- keep frontend `VITE_API_BASE_URL=/` and let the Vite dev server proxy `/{apiPrefix}` requests to `127.0.0.1:8080`
+- keep `system.admin.oauth.redirect_url` pointing to the current frontend callback route `/auth/callback`, for example `http://localhost:3000/auth/callback`
+- keep `system.admin.webauthn.rp_origins` including `http://localhost:3000` for local Passkey debugging
+
+Frontend README and local setup:
+
+- [dudu-admin README](https://github.com/seakee/dudu-admin/blob/main/README.md)
+- [dudu-admin README (ZH)](https://github.com/seakee/dudu-admin/blob/main/README-zh.md)
 
 ## Architecture
 

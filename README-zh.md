@@ -6,6 +6,7 @@
 
 `dudu-admin-api` 是从 `seakee/dudu-admin-api` 的 `admin` 分支拆分出的后台管理后端项目，聚焦后台认证鉴权、用户、角色、权限、菜单、操作记录等能力。
 
+- 配套前端: `https://github.com/seakee/dudu-admin`
 - 仓库地址: `https://github.com/seakee/dudu-admin-api`
 - 来源分支: `seakee/dudu-admin-api:admin`
 - 导入基线: `6df6cfe8aeeb27eaaaee74c7fb7e520af5f8feb2`
@@ -129,6 +130,24 @@ ls -l ./dudu-admin-api/bin/data/sql/mysql/init.sql
 
 生效路由前缀由 `system.route_prefix` 配置。  
 默认值: `dudu-admin-api`。
+
+## 前后端联调
+
+- 配套前端项目: [`dudu-admin`](https://github.com/seakee/dudu-admin)
+- 推荐本地前端地址: `http://localhost:3000`
+- 推荐本地后端地址: `http://127.0.0.1:8080`
+
+采用默认本地联调方案时，建议保持以下配置一致：
+
+- 前端 `VITE_API_ROUTE_PREFIX=/dudu-admin-api` 与后端 `system.route_prefix` 对齐
+- 前端 `VITE_API_BASE_URL=/`，通过 Vite 开发代理把 `/{apiPrefix}` 请求转发到 `127.0.0.1:8080`
+- 本地 OAuth 回调调试时，`system.admin.oauth.redirect_url` 应指向当前前端回调路由 `/auth/callback`，例如 `http://localhost:3000/auth/callback`
+- 本地 Passkey 调试时，`system.admin.webauthn.rp_origins` 包含 `http://localhost:3000`
+
+前端 README 与本地启动说明：
+
+- [dudu-admin README](https://github.com/seakee/dudu-admin/blob/main/README.md)
+- [dudu-admin README（中文）](https://github.com/seakee/dudu-admin/blob/main/README-zh.md)
 
 ## 架构说明
 
