@@ -33,28 +33,44 @@ make build
 make run
 ```
 
-### Remote Bootstrap (Interactive)
+### Single-entry Bootstrap / Project Generation
 
 ```bash
+# Remote download and generate the default ./dudu-admin-api directory
 curl -fsSL https://raw.githubusercontent.com/seakee/dudu-admin-api/main/scripts/init-project.sh -o init-project.sh
 bash init-project.sh
+
+# Remote download and generate a custom project
+bash init-project.sh --project-name my-api --module-name github.com/acme/my-api
+
+# Run inside repository: initialize the current repository
+./scripts/init-project.sh
 ```
 
-The script can clone the repository automatically, generate a minimal runnable config (`bin/configs/{RUN_ENV}.json`), initialize database tables/data, and seed super-admin records.
+`init-project.sh` is the single recommended bootstrap entry. It can either generate a new project from the template or initialize the current/existing repository.
+The script generates a minimal runnable config (`bin/configs/{RUN_ENV}.json`), initializes database tables/data, and seeds super-admin records.
 When `--admin-password` overrides `user_id=1`, the script stores the password using the admin login credential format and clears the preset TOTP state.
 If `--config` writes to a custom path, start the service with `APP_CONFIG_PATH=/path/to/config.json`.
+If `--module-name` is not a remote repository path and you are not running inside the template repository, pass `--repo-url` explicitly.
 
-### Remote Bootstrap (Non-interactive)
+### Non-interactive Mode
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/seakee/dudu-admin-api/main/scripts/init-project.sh -o init-project.sh
+# Generate and initialize a new project non-interactively
 bash init-project.sh --non-interactive --yes \
+  --project-name my-api \
+  --module-name github.com/acme/my-api \
+  --dialect postgres \
+  --db-host 127.0.0.1 --db-port 5432 \
+  --db-name my-api --db-user my-api --db-password 'CHANGE_ME_DB_PASSWORD'
+
+# Initialize an existing repository non-interactively
+bash init-project.sh --non-interactive --yes \
+  --project-dir ./dudu-admin-api --skip-clone \
   --dialect postgres \
   --db-host 127.0.0.1 --db-port 5432 \
   --db-name dudu-admin-api --db-user dudu-admin-api --db-password 'CHANGE_ME_DB_PASSWORD'
 ```
-
-Note: If the repository already exists in target path, add `--project-dir ./dudu-admin-api --skip-clone` to prevent auto clone.
 
 ### Bootstrap Troubleshooting
 

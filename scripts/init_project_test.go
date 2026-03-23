@@ -74,7 +74,9 @@ func TestInitProjectScriptUsesEnglishPrompts(t *testing.T) {
 	}
 
 	for _, phrase := range []string{
-		`"Project directory (repository will be cloned if missing)"`,
+		`"Project name"`,
+		`"Go module name"`,
+		`"Project directory"`,
 		`"Starting interactive configuration wizard"`,
 		`"Runtime environment RUN_ENV"`,
 		`"Database dialect (mysql/postgres)"`,
@@ -89,6 +91,72 @@ func TestInitProjectScriptUsesEnglishPrompts(t *testing.T) {
 		if !strings.Contains(script, phrase) {
 			t.Fatalf("script missing expected English prompt %q", phrase)
 		}
+	}
+}
+
+func TestInitProjectGenerateModeDryRunUsesCurrentRepoAsTemplateSource(t *testing.T) {
+	repoRoot := repoRoot(t)
+	scriptPath := filepath.Join(repoRoot, "scripts", "init-project.sh")
+	targetDir := filepath.Join(t.TempDir(), "my-api")
+
+	output := runBashCommand(t, repoRoot, []string{
+		"bash", scriptPath,
+		"--non-interactive",
+		"--dry-run",
+		"--yes",
+		"--skip-go-mod",
+		"--project-name", "my-api",
+		"--module-name", "github.com/acme/my-api",
+		"--project-dir", targetDir,
+		"--dialect", "postgres",
+		"--db-password", "secret",
+	})
+
+	if !strings.Contains(output, "[dry-run] git clone -b main --depth 1 "+repoRoot+" "+targetDir) {
+		t.Fatalf("dry-run should use current repo as default template source, output = %s", output)
+	}
+	if !strings.Contains(output, "Generate project: name=my-api module=github.com/acme/my-api dir="+targetDir) {
+		t.Fatalf("dry-run output missing generation summary, output = %s", output)
+	}
+	if !strings.Contains(output, "DB: my-api@127.0.0.1:5432 (user: my-api)") {
+		t.Fatalf("dry-run output missing generated database defaults, output = %s", output)
+	}
+	if !strings.Contains(output, "System: name=my-api run_mode=release route_prefix=my-api effective_prefix=my-api") {
+		t.Fatalf("dry-run output missing generated system defaults, output = %s", output)
+	}
+}
+
+func TestInitProjectGenerateModeRequiresRepoURLForNonRemoteModuleOutsideTemplateRepo(t *testing.T) {
+	repoRoot := repoRoot(t)
+	originalScriptPath := filepath.Join(repoRoot, "scripts", "init-project.sh")
+	workdir := t.TempDir()
+	targetDir := filepath.Join(workdir, "my-api")
+	scriptCopyPath := filepath.Join(workdir, "init-project.sh")
+
+	content, err := os.ReadFile(originalScriptPath)
+	if err != nil {
+		t.Fatalf("ReadFile(%q) error = %v", originalScriptPath, err)
+	}
+
+	script := strings.ReplaceAll(string(content), `TEMPLATE_MODULE_NAME="github.com/seakee/dudu-admin-api"`, `TEMPLATE_MODULE_NAME="template-local"`)
+	if err := os.WriteFile(scriptCopyPath, []byte(script), 0o755); err != nil {
+		t.Fatalf("WriteFile(%q) error = %v", scriptCopyPath, err)
+	}
+
+	output := runBashCommandExpectError(t, workdir, []string{
+		"bash", scriptCopyPath,
+		"--non-interactive",
+		"--yes",
+		"--skip-go-mod",
+		"--project-name", "my-api",
+		"--module-name", "my-api",
+		"--project-dir", targetDir,
+		"--dialect", "postgres",
+		"--db-password", "secret",
+	})
+
+	if !strings.Contains(output, "Template repository URL is empty") {
+		t.Fatalf("expected explicit repo-url guidance for non-remote module name, output = %s", output)
 	}
 }
 
@@ -172,6 +240,20 @@ func runBashCommandWithEnv(t *testing.T, workdir string, args []string, extraEnv
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("command %q failed: %v\n%s", strings.Join(args, " "), err, output)
+	}
+	return string(output)
+}
+
+func runBashCommandExpectError(t *testing.T, workdir string, args []string) string {
+	t.Helper()
+
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Dir = workdir
+	cmd.Env = os.Environ()
+
+	output, err := cmd.CombinedOutput()
+	if err == nil {
+		t.Fatalf("command %q succeeded unexpectedly\n%s", strings.Join(args, " "), output)
 	}
 	return string(output)
 }

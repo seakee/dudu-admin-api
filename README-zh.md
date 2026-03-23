@@ -32,28 +32,44 @@ make build
 make run
 ```
 
-### 远程初始化（交互模式）
+### 单入口初始化 / 生成
 
 ```bash
+# 远程下载并直接生成默认目录 ./dudu-admin-api
 curl -fsSL https://raw.githubusercontent.com/seakee/dudu-admin-api/main/scripts/init-project.sh -o init-project.sh
 bash init-project.sh
+
+# 远程下载并生成自定义项目
+bash init-project.sh --project-name my-api --module-name github.com/acme/my-api
+
+# 仓库内执行：初始化当前仓库
+./scripts/init-project.sh
 ```
 
-脚本支持自动 clone 仓库、生成最小可执行配置文件（`bin/configs/{RUN_ENV}.json`）、初始化数据库表与种子数据，并初始化超级管理员记录。
+`init-project.sh` 是唯一推荐的项目引导入口，既可以从模板生成新项目，也可以初始化当前/现有仓库。
+脚本会生成最小可执行配置文件（`bin/configs/{RUN_ENV}.json`）、初始化数据库表与种子数据，并初始化超级管理员记录。
 若通过 `--admin-password` 覆盖 `user_id=1`，脚本会按后台登录口径写入密码，并同步清理预置 TOTP 状态。
 若通过 `--config` 写入自定义路径，请使用 `APP_CONFIG_PATH=/path/to/config.json` 启动服务。
+若 `--module-name` 不是远端仓库路径，且当前不在模板仓库内执行，请显式传入 `--repo-url`。
 
-### 远程初始化（非交互模式）
+### 非交互模式
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/seakee/dudu-admin-api/main/scripts/init-project.sh -o init-project.sh
+# 非交互生成并初始化新项目
 bash init-project.sh --non-interactive --yes \
+  --project-name my-api \
+  --module-name github.com/acme/my-api \
+  --dialect postgres \
+  --db-host 127.0.0.1 --db-port 5432 \
+  --db-name my-api --db-user my-api --db-password 'CHANGE_ME_DB_PASSWORD'
+
+# 非交互初始化现有仓库
+bash init-project.sh --non-interactive --yes \
+  --project-dir ./dudu-admin-api --skip-clone \
   --dialect postgres \
   --db-host 127.0.0.1 --db-port 5432 \
   --db-name dudu-admin-api --db-user dudu-admin-api --db-password 'CHANGE_ME_DB_PASSWORD'
 ```
-
-说明：若目标目录已存在仓库，可追加 `--project-dir ./dudu-admin-api --skip-clone` 禁止脚本自动 clone。
 
 ### 初始化失败排查
 
