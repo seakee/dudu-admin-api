@@ -17,10 +17,14 @@
 cp bin/configs/local.json.default bin/configs/prod.json
 ```
 
+`bin/configs/prod.json` 只是模板，发布前必须替换所有占位值。
+现在启动阶段会对已启用的数据库和 Redis 连接做 fail-fast 校验；如果仍保留模板占位值或缺少必需字段，服务会直接拒绝启动。
+
 重点检查 `bin/configs/prod.json`：
 - `system.run_mode`（`release`）
 - `system.http_port`
 - `system.jwt_secret`
+- `system.admin.jwt_secret`（推荐单独配置；为空时会回退到 `system.jwt_secret`）
 - `system.route_prefix`
 - `databases[*]`
 - `redis[*]`
@@ -59,6 +63,8 @@ RUN_ENV=prod ./bin/dudu-admin-api
 ```bash
 make docker-build
 ```
+
+仓库现在通过 `.dockerignore` 排除了本地配置、临时产物以及本地工作区元数据，避免这些内容进入 Docker build context。
 
 运行容器：
 

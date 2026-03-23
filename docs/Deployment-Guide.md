@@ -17,10 +17,14 @@ Create production config from template:
 cp bin/configs/local.json.default bin/configs/prod.json
 ```
 
+`bin/configs/prod.json` is only a template. Replace all placeholder values before deployment.
+Startup now fails fast when enabled database or Redis entries still use template placeholders or omit required connection fields.
+
 Key fields to review in `bin/configs/prod.json`:
 - `system.run_mode` (`release`)
 - `system.http_port`
 - `system.jwt_secret`
+- `system.admin.jwt_secret` (recommended; falls back to `system.jwt_secret` when empty)
 - `system.route_prefix`
 - `databases[*]`
 - `redis[*]`
@@ -59,6 +63,8 @@ Build image:
 ```bash
 make docker-build
 ```
+
+The repository now uses `.dockerignore` to exclude local configs, temporary artifacts, and local workspace metadata from the Docker build context.
 
 Run container:
 
