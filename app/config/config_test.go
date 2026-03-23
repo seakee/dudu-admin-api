@@ -70,8 +70,8 @@ func TestLoadConfigFallsBackToRunEnvPath(t *testing.T) {
 	if cfg.System.Name != "from-run-env" {
 		t.Fatalf("System.Name = %q, want %q", cfg.System.Name, "from-run-env")
 	}
-	if cfg.System.APIPrefix != "dudu-admin-api" {
-		t.Fatalf("System.APIPrefix = %q, want %q", cfg.System.APIPrefix, "dudu-admin-api")
+	if cfg.System.RoutePrefix != "dudu-admin-api" {
+		t.Fatalf("System.RoutePrefix = %q, want %q", cfg.System.RoutePrefix, "dudu-admin-api")
 	}
 }
 

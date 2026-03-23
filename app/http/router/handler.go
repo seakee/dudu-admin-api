@@ -17,17 +17,12 @@ import (
 func Register(engine *gin.Engine, ctx *http.Context) {
 	ctx.Engine = engine
 
-	apiPrefix := ""
+	routePrefix := "dudu-admin-api"
 	if ctx != nil && ctx.Config != nil {
-		apiPrefix = strings.Trim(ctx.Config.System.RoutePrefix, "/")
-		if apiPrefix == "" {
-			apiPrefix = strings.Trim(ctx.Config.System.APIPrefix, "/")
-		}
+		routePrefix = strings.Trim(ctx.Config.System.RoutePrefix, "/")
 	}
-	if apiPrefix == "" {
-		apiPrefix = "dudu-admin-api"
-	}
-	api := engine.Group(apiPrefix)
+
+	api := engine.Group(routePrefix)
 
 	// Set up internal API routes
 	internalAPI := api.Group("internal")
