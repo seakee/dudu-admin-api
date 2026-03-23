@@ -19,7 +19,7 @@ HTTP 运行链路：
 
 ## 路由拓扑
 
-生效路由前缀优先使用 `system.route_prefix`，若为空则回退到 `system.api_prefix`（默认 `dudu-admin-api`）。
+生效路由前缀由 `system.route_prefix` 配置（默认 `dudu-admin-api`）。
 
 主要分组：
 - `/{apiPrefix}/external/...`

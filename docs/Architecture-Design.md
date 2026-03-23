@@ -19,7 +19,7 @@ Runtime HTTP path:
 
 ## Route Topology
 
-The effective route prefix uses `system.route_prefix` first and falls back to `system.api_prefix` (default: `dudu-admin-api`).
+The effective route prefix is configured by `system.route_prefix` (default: `dudu-admin-api`).
 
 Primary groups:
 - `/{apiPrefix}/external/...`

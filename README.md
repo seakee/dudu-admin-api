@@ -122,14 +122,13 @@ The bootstrap script generates required minimal fields including:
 - `system.route_prefix`
 - `system.run_mode`
 - `system.http_port`
-- `system.api_prefix`
 - `system.default_lang`
 - `system.jwt_secret`
 - `system.admin.jwt_secret`
 
 ### API Prefix
 
-The effective route prefix uses `system.route_prefix` first, then falls back to `system.api_prefix`.  
+The effective route prefix is configured by `system.route_prefix`.  
 Default: `dudu-admin-api`.
 
 ## Architecture

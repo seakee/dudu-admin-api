@@ -52,13 +52,13 @@ bash init-project.sh --non-interactive --yes \
 - `system.route_prefix`
 - `system.run_mode`
 - `system.http_port`
-- `system.api_prefix`
 - `system.default_lang`
 - `system.jwt_secret`
 - `system.admin.jwt_secret`
 
 补充说明：
-- 生效路由前缀遵循 `system.route_prefix` 优先、`system.api_prefix` 回退的规则。
+- 生效路由前缀由 `system.route_prefix` 配置。
+- 若前端项目使用 `dudu-admin`，请同步将前端 `VITE_API_ROUTE_PREFIX` 设置为与当前生效路由前缀一致，避免接口文档、代理配置与服务端路由脱节。
 - 若设置 `--admin-password`，脚本会写入 `bcrypt(md5(明文密码))`，并清理 `user_id=1` 的预置 TOTP 状态。
 - 初始化脚本会在执行 `init.sql` 前，将种子 RBAC 权限路径改写为当前生效前缀。
 - 若通过 `--config` 写入自定义路径，请使用 `APP_CONFIG_PATH=/path/to/config.json` 启动服务。
@@ -79,7 +79,6 @@ bash init-project.sh \
   --route-prefix dudu-admin-api \
   --run-mode release \
   --http-port :8080 \
-  --api-prefix dudu-admin-api \
   --default-lang zh-CN \
   --db-host 127.0.0.1 \
   --db-port 5432 \
@@ -111,7 +110,6 @@ bash init-project.sh \
   --route-prefix dudu-admin-api \
   --run-mode release \
   --http-port :8080 \
-  --api-prefix dudu-admin-api \
   --default-lang zh-CN \
   --db-host 127.0.0.1 \
   --db-port 3306 \
@@ -174,7 +172,7 @@ Repository 内直接 `db.WithContext(ctx)...` 仅用于：
 
 ## 路由结构
 
-生效路由前缀优先使用 `system.route_prefix`，若为空则回退到 `system.api_prefix`；默认值为 `dudu-admin-api`。
+生效路由前缀由 `system.route_prefix` 配置；默认值为 `dudu-admin-api`。
 
 - `/{apiPrefix}/external/...`
 - `/{apiPrefix}/internal/...`

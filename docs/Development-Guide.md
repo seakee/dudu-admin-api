@@ -52,13 +52,13 @@ The script generates a minimal runnable config file (`bin/configs/{RUN_ENV}.json
 - `system.route_prefix`
 - `system.run_mode`
 - `system.http_port`
-- `system.api_prefix`
 - `system.default_lang`
 - `system.jwt_secret`
 - `system.admin.jwt_secret`
 
 Notes:
-- The effective route prefix uses `system.route_prefix` first and falls back to `system.api_prefix`.
+- The effective route prefix is configured by `system.route_prefix`.
+- If the frontend project uses `dudu-admin`, keep `VITE_API_ROUTE_PREFIX` aligned with the effective route prefix to avoid drift between API docs, dev proxy settings, and server routes.
 - When `--admin-password` is provided, the script stores `bcrypt(md5(plain_password))` and clears the preset TOTP state for `user_id=1`.
 - Before executing `init.sql`, the script rewrites seeded RBAC permission paths to the effective prefix.
 - If `--config` writes to a custom path, start the service with `APP_CONFIG_PATH=/path/to/config.json`.
@@ -79,7 +79,6 @@ bash init-project.sh \
   --route-prefix dudu-admin-api \
   --run-mode release \
   --http-port :8080 \
-  --api-prefix dudu-admin-api \
   --default-lang zh-CN \
   --db-host 127.0.0.1 \
   --db-port 5432 \
@@ -111,7 +110,6 @@ bash init-project.sh \
   --route-prefix dudu-admin-api \
   --run-mode release \
   --http-port :8080 \
-  --api-prefix dudu-admin-api \
   --default-lang zh-CN \
   --db-host 127.0.0.1 \
   --db-port 3306 \
@@ -174,7 +172,7 @@ Direct `db.WithContext(ctx)...` in repository is only for:
 
 ## Route Structure
 
-The effective route prefix uses `system.route_prefix` first and falls back to `system.api_prefix`; the default value is `dudu-admin-api`.
+The effective route prefix is configured by `system.route_prefix`; the default value is `dudu-admin-api`.
 
 - `/{apiPrefix}/external/...`
 - `/{apiPrefix}/internal/...`
