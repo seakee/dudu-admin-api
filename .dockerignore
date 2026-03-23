@@ -1,0 +1,9 @@
+.git/
+.claude/
+.idea/
+.DS_Store
+Agents.md
+bin/tmp/
+bin/configs/*.json
+.env
+.env.*
