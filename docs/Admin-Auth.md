@@ -53,9 +53,9 @@ The full business route prefix for the auth module is `/{apiPrefix}/internal/adm
 ```json
 {
   "code": 0,
-  "msg": "OK",
+  "msg": "ok",
   "trace": {
-    "id": "f3f7a9f6ee024934",
+    "id": "afeade2f5957-tcdtjo-gdmaj",
     "desc": ""
   },
   "data": {}
@@ -514,6 +514,10 @@ Additional notes:
   {
     "code": 11042,
     "msg": "NeedBindOAuth",
+    "trace": {
+      "id": "afeade2f5957-tcdtjo-gdmaj",
+      "desc": ""
+    },
     "data": {
       "bind_ticket": "BIND_TICKET",
       "oauth_profile": {
@@ -792,7 +796,11 @@ Additional notes:
   ```json
   {
     "code": 0,
-    "msg": "OK",
+    "msg": "ok",
+    "trace": {
+      "id": "afeade2f5957-tcdtjo-gdmaj",
+      "desc": ""
+    },
     "data": {
       "token": "JWT_TOKEN",
       "expires_in": 7200
