@@ -101,7 +101,11 @@ POST /{apiPrefix}/external/service/auth/token
 ```json
 {
   "code": 0,
-  "message": "ok",
+  "msg": "ok",
+  "trace": {
+    "id": "afeade2f5957-tcdtjo-gdmaj",
+    "desc": ""
+  },
   "data": {}
 }
 ```
